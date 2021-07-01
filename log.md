@@ -1,0 +1,68 @@
+# 21.07.01
+## sub query 적용 비교
+### join with sub query
+```sql
+SELECT base_date, entity_xf_map.gvkey_iid, agg_count FROM daily_cnt_rp_story_id 
+INNER JOIN ( select rp_entity_id, gvkey_iid from entity_xf_map 
+		  where rp_entity_id in ('1FC5ED', 'BE14CF', '0B4A04', '85514C', 'D1126B', 'E5F6B6', 
+ '84FECE', 'A9D93B', '54D3C8', 'F67165', 'E4EB0C', '601785', 'B64E9E',
+ '048E7F', 'FF9458', '3CD822', '29869A', '5D0850', 'FE2C5B', '2C3EEB',
+ '339C71', '1C0E96', '9D4EC7', 'BE4F2F', '9A7789', '8B1E11', 'AF9895',
+ 'F07E06', '8B0DFD', '33E8C7', 'D10C37', 'CCF70A', 'F6DA75', '67A691', 
+ '1FD37E', '954004', '190B91', '6926BE', 'F80DC7', '0C9A81', '28AF37', 
+ '630239', 'C85A60', '2FDEE3', '4A05F4', '0D5111', 'ED84A3', 'E6FF17', 
+ 'A0A565', 'CF211D', 'FACCF6', 'EDF783', 'D30A40', '0D194D', '07C907') ) entity_xf_map
+ON daily_cnt_rp_story_id.rp_entity_id = entity_xf_map.rp_entity_id 
+
+/*
+"Gather  (cost=600025.39..792357.91 rows=1257562 width=22)"
+"  Workers Planned: 2"
+"  ->  Parallel Hash Join  (cost=599025.39..665601.71 rows=523984 width=22)"
+"        Hash Cond: (entity_xf_map.rp_entity_id = daily_cnt_rp_story_id.rp_entity_id)"
+"        ->  Parallel Seq Scan on entity_xf_map  (cost=0.00..12118.46 rows=337 width=17)"
+"              Filter: (rp_entity_id = ANY ('{1FC5ED,BE14CF,0B4A04,85514C,D1126B,E5F6B6,84FECE,A9D93B,54D3C8,F67165,E4EB0C,601785,B64E9E,048E7F,FF9458,3CD822,29869A,5D0850,FE2C5B,2C3EEB,339C71,1C0E96,9D4EC7,BE4F2F,9A7789,8B1E11,AF9895,F07E06,8B0DFD,33E8C7,D10C37,CCF70A,F6DA75,67A691,1FD37E,954004,190B91,6926BE,F80DC7,0C9A81,28AF37,630239,C85A60,2FDEE3,4A05F4,0D5111,ED84A3,E6FF17,A0A565,CF211D,FACCF6,EDF783,D30A40,0D194D,07C907}'::bpchar[]))"
+"        ->  Parallel Hash  (cost=433834.17..433834.17 rows=8997617 width=19)"
+*/
+```
+```
+Successfully run. Total query runtime: 19 secs 638 msec.
+1472265 rows affected.
+```
+### join without sub query
+```sql
+SELECT base_date, entity_xf_map.gvkey_iid, agg_count FROM daily_cnt_rp_story_id 
+INNER JOIN entity_xf_map 
+ON daily_cnt_rp_story_id.rp_entity_id = entity_xf_map.rp_entity_id 
+ WHERE daily_cnt_rp_story_id.rp_entity_id in ('1FC5ED', 'BE14CF', '0B4A04', '85514C', 'D1126B', 'E5F6B6', 
+ '84FECE', 'A9D93B', '54D3C8', 'F67165', 'E4EB0C', '601785', 'B64E9E',
+ '048E7F', 'FF9458', '3CD822', '29869A', '5D0850', 'FE2C5B', '2C3EEB',
+ '339C71', '1C0E96', '9D4EC7', 'BE4F2F', '9A7789', '8B1E11', 'AF9895',
+ 'F07E06', '8B0DFD', '33E8C7', 'D10C37', 'CCF70A', 'F6DA75', '67A691', 
+ '1FD37E', '954004', '190B91', '6926BE', 'F80DC7', '0C9A81', '28AF37', 
+ '630239', 'C85A60', '2FDEE3', '4A05F4', '0D5111', 'ED84A3', 'E6FF17', 
+ 'A0A565', 'CF211D', 'FACCF6', 'EDF783', 'D30A40', '0D194D', '07C907')
+
+/*
+"Gather  (cost=6680.84..358967.87 rows=74263 width=22)"
+"  Workers Planned: 6"
+"  ->  Parallel Hash Join  (cost=5680.84..350541.57 rows=12377 width=22)"
+"        Hash Cond: (daily_cnt_rp_story_id.rp_entity_id = entity_xf_map.rp_entity_id)"
+"        ->  Parallel Index Scan using daily_cnt_rp_story_id_pkey on daily_cnt_rp_story_id  (cost=0.56..344723.63 rows=1565 width=19)"
+"              Index Cond: ((base_date >= '2000-01-01 00:00:00'::timestamp without time zone) AND (base_date <= '2005-06-30 00:00:00'::timestamp without time zone))"
+"              Filter: (rp_entity_id = ANY ('{1FC5ED,BE14CF,0B4A04,85514C,D1126B,E5F6B6,84FECE,A9D93B,54D3C8,F67165,E4EB0C,601785,B64E9E,048E7F,FF9458,3CD822,29869A,5D0850,FE2C5B,2C3EEB,339C71,1C0E96,9D4EC7,BE4F2F,9A7789,8B1E11,AF9895,F07E06,8B0DFD,33E8C7,D10C37,CCF70A,F6DA75,67A691,1FD37E,954004,190B91,6926BE,F80DC7,0C9A81,28AF37,630239,C85A60,2FDEE3,4A05F4,0D5111,ED84A3,E6FF17,A0A565,CF211D,FACCF6,EDF783,D30A40,0D194D,07C907}'::bpchar[]))"
+"        ->  Parallel Hash  (cost=4249.57..4249.57 rows=114457 width=17)"
+"              ->  Parallel Seq Scan on entity_xf_map  (cost=0.00..4249.57 rows=114457 width=17)"
+*/
+```
+```
+Successfully run. Total query runtime: 12 secs 407 msec.
+1472265 rows affected.
+```
+
+- sub query 없이 join하는게 더 빠름
+- filter의 역할이 중요하게 작동함( 전체 rp_entity_id 18377개인데 55개( 0.3% )에 해당하는 경우만 추출하도록 하여 Index Scan이 효과적으로 적용됨 )
+- filter의 역할이 미미해질 경우( 전체 테이블에서 큰 비율로 데이터를 로드해야 하는 경우,..) Seq Scan이 적용될 것(Parallel Seq Scan 인 경우 프로세스를 여러 개 띄워 병렬로 쿼리를 수행하나 CPU 사용량이 급증할 수 있음)
+
+## 데이터를 나눠서 받는게 빠른가?
+- 20년치 데이터( Table size : 2.6GB)를 split해서 로드
+- 기간을 나눠서( 연도별 )  
