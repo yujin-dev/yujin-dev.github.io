@@ -18,7 +18,9 @@ category: "db"
 Task는 <데이터 자체는 csv 파일로 존재하고 이를 DB에 적재한다> 이다.
 
 ### 1. `INSERT TABLE_NAME(column1, column2, ..) VALUES(xx, xx, ..)`
-### 2. `UNNSET`
+
+
+### 2. `UNNEST`
 ### 3. `COPY FROM`
 여기서는 약간의(?) 많은 시행착오가 있었다. 일단 `copy .. from ..`은 구분자로 데이터를 SPLIT하여 읽어 삽입하는데 데이터 자체에 구분자가 포함되는 경우가 있었다.
 구분자는 1BYTE이어야 하는 조건이 있었고 이를 만족하는 문자열은 데이터의 텍스트 칼럼에 이미 존재하였다. 여기서 parse를 제대로 적용해줘야 한다.
