@@ -63,7 +63,7 @@ sql = f"INSERT INTO {table_name}({columns}) SELECT {','.join(value)}"
 - 시간
 
 
-### `COPY FROM`
+### `COPY FROM `
 
 여기서는 약간의(?) 많은 시행착오가 있었다. 일단 `copy .. from ..`은 구분자로 데이터를 SPLIT하여 읽어 삽입하는데 데이터 자체에 구분자가 포함되는 경우가 있었다.
 구분자는 1BYTE이어야 하는 조건이 있었고 이를 만족하는 문자열은 데이터의 텍스트 칼럼에 이미 존재하였다. 여기서 parse를 제대로 적용해줘야 한다.
@@ -84,4 +84,18 @@ cursor.copy_expert(f"COPY {table_name} FROM STDIN WITH ( DELIMITER ',', FORMAT C
 위에서 `FORCE_NULL` 을 통해 명시된 칼럼에 대해 NULL도 값으로 포함하여 데이터를 삽입함을 의미한다. 기존 테이블에서 NULL 허용을 Y로 설정해줘도 `FORCE_NULL`을 허용함을 명시하지 않으면 오류를 발생하여 해당 트랜잭션을 처리하지 않는다. 
 - 시간
 
+
+### `COPY FROM UNZIP`
+데이터 용량이 크기에 파일로 저장하거나 새로 받을 떄 보통 zip파일로 압축하여 이용한다. Postgresql에서는 binary로 DB에 저장할 수 있기에 테이블에 ZIP 파일 그대로 삽입할 수 있다.
+쿼리로 데이터 내용을 확인하긴 어렵지만 단일 서버에서 작업하는 경우 DB 자체의 크기를 줄여주어 데이터를 보다 빠르게 받을 수 있다. 
+```python
+cursor.copy_expert(f"COPY FROM ZIP")
+```
+클라이언트에서 데이터를 요청하여 로드하는 경우 로컬 서버가 아니면 용량에 따라 다소 시간이 소요되는데 용량 자체가 줄어든 상태로 저장되었기에 다운 속도가 늘어나는 이점이 생길 수 있다.
+```python
+데이터 요청 
+```
+- 시간 
+
 ### 결과 비교
+- bar로 비교
