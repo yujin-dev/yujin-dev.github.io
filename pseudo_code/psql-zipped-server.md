@@ -4,6 +4,9 @@ COPY table_name TO stdout DELIMITER ',' CSV HEADER | gzip > table_name.csv.gz
 
 -- with column info
 COPY table_name(column1, column2) TO stdout DELIMITER ',' CSV HEADER | gzip > table_name.csv.gz
+
+-- one command
+COPY table_name to PROGRAM 'gzip > /table_name.csv.gz' delimiters',' CSV HEADER;
 ```
 시간 체크
 
