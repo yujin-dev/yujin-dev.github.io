@@ -1,0 +1,41 @@
+query generation for multimodal docuemt
+- multimodal documents 위한 쿼리 생성
+- 인덱싱 전에 해당 documents에 생성한 쿼리를 붙임
+- 이후 reverse index로 매칭되는 결과 찾기
+- relevance ranking을 개선시킴
+
+
+bootstrapping information extraction via conceptualization
+- bootstrapping은 기존의 정보에서 패턴을 찾도록 해줌
+- but, iteration 횟수가 많아질수록 의미 변화가 발생하게 됨
+- 패턴 추출 : 
+개념적 분류로 의미 변화를 축소시킴
+정확성을 위해 기존 정보를 이용 
+일반화된 패턴을 생성하기 위해 모든 패턴을 통합
+
+Web document encoding for structure-aware keyphrase extraction
+- Web documents에서 핵심단계 추출 
+- Web documents에서 단어들의 graph로 structure( title - header - anchor )를 생성
+- 단어들의 graph는 위치 기반 유사도 + 구조적 연관성을 나타냄
+- NAVER 검색 엔진의 KPE 성능 지표로 평가함 
+
+
+BERT is not all you need for commensense inference
+- 자연어 추론이나 인과관계 추론에서 많이 쓰이고 성능이 높다고 알려진 BERT의 단점
+
+NL2pSQL:Generating Pseudo-SQL Queries from Under-Specified NL Questions
+- 문장에서 SQL 코드 도출
+- 정보를 명시하는 경우 SQL 쿼리를 생성해낼 수 있음
+- table이 명시되지 않은 여러 문제에 대한 쿼리를 생성
+- Pseudo-SQL 자동 생성
+
+Categorical Metadata Representation for Customized Text classfication문제가
+- sentiment 분류를 위한 user/product 정보로 카테고리 메타데이터로 text 분류 성능이 높아짐
+
+Understanding Relations using Concepts and Semantics
+1. data sparseness : knowledge bases의 단어들의 개념( conceptual )
+2. context sparseness : word semantics( semantic )
+classfication 모델을 평가(highly relevant - relevant - neutral - irrelevant)
+
+Adversarial TableQA: Attention Supervision for Question Answering on Tables
+- attention supervision으로 Neural Operator(NeOp)을 제안함
