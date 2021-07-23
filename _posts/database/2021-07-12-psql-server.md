@@ -14,6 +14,12 @@ Server Configuration의 주요 요소를 살펴보기로 한다.
 RAM이 1GB 이상이라면 `shared_buffers` 는 RAM 크기의 25% 설정하는 것이 적당하다.
 PostgreSQL 서버는 OS 캐시에도 의존하기에 RAM 의 40% 이상은 `shared_buffers`에 할당되지 않는다. `shared_buffers` 설정에 따라 `max_wal_size`도 크기를 조정하는 것이 필요하다. 새로운 데이터를 write 할때 시간을 늘려서 작업을 수행하기 위함이다. 
 
+[ 21.07.23 추가 ]
+`max_wal_size`는 얼마나 자주 checkpoints를 하냐를 결정한다. 따라서 writes가 많은 경우 높은 값의 `max_wal_size`가 필요하다.( 그렇지 않으면 checkpoints를 매우 자주 하게 될것. )
+`shared_buffers`는 쿼리에 의한 데이터 캐싱과 주로 연관되어 있다. 자주 불러오는 데이터를 shared buffers에 캐싱하면 좋다.(높은 cache hit ratio) 
+둘 간에는 약간의 연관성이 있다. 
+1. 
+
 #### `temp_buffers`
 DB 세션의 temporary buffers에 사용되는 메모리의 최대값. 임시 테이블 접근에만 사용된다.
 
@@ -76,4 +82,3 @@ autovacuum을 실행할지 여부를 설정한다. 개별 테이블마다 autova
 ## Client Connection
 #### `idle_in_transaction_session_timeout`
 정해진 시간보다 `idle` 상태인 세션은 끊는다. 
-
