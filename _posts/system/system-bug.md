@@ -1,6 +1,6 @@
 ---
 title: "system-bug"
-category: "bug"
+category: "system"
 ---
 
 ### Segmentation Fault

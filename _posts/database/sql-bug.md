@@ -1,6 +1,6 @@
 ---
-title: "sql-bug"
-category: "bug"
+title: "SQL-bug"
+category: "db"
 ---
 
 ### Couldn’t execute ‘SELECT COLUMN_NAME, JSON_EXTRACT(HISTOGRAM, ‘$.“number-of-buckets-specified”’) FROM information_schema.COLUMN_STATISTICS WHERE SCHEMA_NAME = ‘DB 이름’ AND TABLE_NAME = ‘테이블 이름‘;’: Unknown table ‘COLUMN_STATISTICS’ in information_schema (1109)
