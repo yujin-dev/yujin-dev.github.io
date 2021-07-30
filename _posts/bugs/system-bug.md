@@ -1,5 +1,5 @@
 ---
-title: "linux-bug"
+title: "system-bug"
 category: "bug"
 ---
 
@@ -11,11 +11,23 @@ Segfault라고도 하는데 프로그램이 동작 중 잘못된 주소를 참�
 
 참고: https://doitnow-man.tistory.com/98
 
-### Couldn’t execute ‘SELECT COLUMN_NAME, JSON_EXTRACT(HISTOGRAM, ‘$.“number-of-buckets-specified”’) FROM information_schema.COLUMN_STATISTICS WHERE SCHEMA_NAME = ‘DB 이름’ AND TABLE_NAME = ‘테이블 이름‘;’: Unknown table ‘COLUMN_STATISTICS’ in information_schema (1109)
-
-MySQL 8.0 부터 발생하는 오류로 옵션이 활성화되어 었으면 dump시 ANALYZE TABLE에 히스토리를 기록하는데 사용할 테이블이 없으면 발생한다.
-
+### 명령어 'docker-compose' 을(를) 찾을 수 없습니다.
+docker 설치 이외에 추가로 설치를 해주어야한다.
 ```console
-$ mysqldump --column-statistics=0 --host={host} --port={post} --user={user} --password={pwd} {DB schema} > {설치할 경로}/backup.sql
-``` 
-출처: https://jay-ji.tistory.com/62
+$ sudo curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-`uname -s`-`uname -m` | sudo tee /usr/local/bin/docker-compose > /dev/null
+```
+권한 부여 
+```console
+$ sudo chmod +x /usr/local/bin/docker-compose
+```
+symbolic link 생성
+```console
+$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
+버전확인하여 설치되었음을 확인한다.
+```console
+$ docker-compose --version
+docker-compose version 1.21.0, build 5920eb0
+```
+
+출처: https://somjang.tistory.com/entry/Docker-Amazon-Linux2-AMI-%EC%97%90%EC%84%9C-docker-compose-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0

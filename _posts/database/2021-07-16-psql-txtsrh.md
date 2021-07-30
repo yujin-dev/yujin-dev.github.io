@@ -93,12 +93,12 @@ SELECT phraseto_tsquery('the cats ate the rats');
 -------------------------------
  'cat' <-> 'ate' <2> 'rat'
  */
- ```
+```
 
- ## Tables and Indexes
+## Tables and Indexes
 
- ### Searching a Table
- index없이 text 검색이 가능하다.
+### Searching a Table
+index없이 text 검색이 가능하다.
 
 `body` field에 `friend`가 있으면 `title` field를 출력하는 쿼리는 아래와 같다.
 ```sql
