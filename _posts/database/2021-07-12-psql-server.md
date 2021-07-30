@@ -2,7 +2,7 @@
 title: "Postgresql documentation 살펴보기 - Server Conf"
 category: "db"
 ---
-Server Configuration의 주요 요소를 살펴보기로 한다.
+Server Configuration의 주요 요소를 살펴보기로 한다. `postgresql.conf`에서 설정 변수 값을 변경하는 경우 #를 해제해야 한다.
 
 ## Connections
 #### `max_connections`
@@ -15,10 +15,10 @@ RAM이 1GB 이상이라면 `shared_buffers` 는 RAM 크기의 25% 설정하는 �
 PostgreSQL 서버는 OS 캐시에도 의존하기에 RAM 의 40% 이상은 `shared_buffers`에 할당되지 않는다. `shared_buffers` 설정에 따라 `max_wal_size`도 크기를 조정하는 것이 필요하다. 새로운 데이터를 write 할때 시간을 늘려서 작업을 수행하기 위함이다. 
 
 [ 21.07.23 추가 ]
-`max_wal_size`는 얼마나 자주 checkpoints를 하냐를 결정한다. 따라서 writes가 많은 경우 높은 값의 `max_wal_size`가 필요하다.( 그렇지 않으면 checkpoints를 매우 자주 하게 될것. )
+`max_wal_size`는 얼마나 자주 checkpoints를 하냐를 결정한다. 따라서 writes가 많은 경우 높은 값의 `max_wal_size`가 필요하다.( 그렇지 않으면 checkpoints를 매우 자주 하게 될것 )
 `shared_buffers`는 쿼리에 의한 데이터 캐싱과 주로 연관되어 있다. 자주 불러오는 데이터를 shared buffers에 캐싱하면 좋다.(높은 cache hit ratio) 
-둘 간에는 약간의 연관성이 있다. 
-1. 
+둘 간에는 약간의 연관성이 있다.( 큰 영향은 없는 것으로 추청됨 ) 
+
 
 #### `temp_buffers`
 DB 세션의 temporary buffers에 사용되는 메모리의 최대값. 임시 테이블 접근에만 사용된다.
@@ -55,6 +55,10 @@ backgroun process 최대 갯수. 기본값은 8이다.
 자동 WAL checkpoints의 최대 시간. 기본값은 `5min`으로 단위가 없으면 기본적으로 seconds이다. 
 
 ## Logging
+
+[ 21.07.23 추가 ]
+참고할 블로그 :https://browndwarf.tistory.com/10
+
 #### `log_min_duration_statement`
 statement가 최소 일정 시간동안 실행된 경우 로그를 남길 때의 duration. 예를 들어 `250ms`라고 설정하면 `250ms` 이상인 statement만 로그가 남는다. 최적화되지 않은 쿼리를 추적할 때 유용하다. 기본값은 -1로 비활성화 상태이다. `log_min_duration_sample`를 override하여 적용된다.
 
