@@ -63,3 +63,6 @@ Kibana 서버는 `kibana.yml` 설정을 기반으로 한다.
 Elasticsearch 연동시키려면 config 에서 `elasticsearch.hosts` 접근하려는 Elasticsearch URLs 설정해야 한다.
 
 출처 : https://www.elastic.co/guide/en/kibana/current/settings.html
+
+--- 
+
