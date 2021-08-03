@@ -1,9 +1,10 @@
 ---
-title: "2021.07.21"
-category: "til"
+title: "MySQL BlahBlah"
+category: "db"
 ---
 
-## [ MySQL ] 도커로 설치
+
+## [ 21.07.22 ] 도커로 설치
 1. MySQL 도커 이미지를 다운받는다. 뒤에 버전 명시(mysql:8.0.22) 를 안하면 자동으로 최신 버전을 가져온다. 
 ```console
 $ docker pull mysql
@@ -33,7 +34,7 @@ $ docker restart mysql
 $ docker exec -it mysql bash
 ```
 
-## [ MySQL ] dump 
+## [ 21.07.22 ] dump 
 ```console
 $ mysqldump --host={host} --port={post} --user={user} --password={pwd} {DB schema} > {설치할 경로}/backup.sql
 ``` 

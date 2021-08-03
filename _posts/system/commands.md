@@ -1,9 +1,49 @@
 ---
-title: "2021.07.27"
+title: "Commands"
+---
+
+---
+title: "2021.07.21"
 category: "til"
 ---
 
-## [ Python ] 가상환경 jupyter notebook 추가
+## [ 21.07.21 ] linux 파일/폴더 복사
+### 원격 복사
+```console
+$ scp {host}:{복사하려는 원격 파일경로} {폴더 위치}
+```
+### 파일 복사 
+```console
+$ cp {복사하려는 경로} {대상 경로}
+```
+- `-a` : 파일 속성까지 복사
+- `-p` : 원본 파일의 소유자, 그룹, 권한까지 복사
+- `-i` : 덮어쓰기 여부를 물음
+- `-r` : 하위 디렉토리 , 파일까지 복사
+- `-v` : 현재 복사 진행 상황 표시
+- `-u` : 최신 파일이면 복사
+- `-b` : 이미 존재하는 파일이면 백업 생성
+
+출처: https://jframework.tistory.com/6
+
+
+## [ 21.07.21 ] python 경로 확인
+```python
+import sys
+sys.executable
+```
+
+```console
+$ python -m site
+```
+
+## [ 21.07.23 ] python 가상환경 설치
+```console
+$ virtualenv -p python3 env_name
+```
+
+
+## [ 21.07.27 ] python 가상환경 jupyter notebook 추가
 jupyter 설치할 가상환경 활성화시키고
  
 ```console
@@ -12,7 +52,7 @@ $ python3 -m ipykernel install --user --name myvenv --display-name "venv_py3.8"
 
 ```
 
-## [ Linux ] 파일 시간 확인
+## [ 21.07.27 ] linux 파일 시간 확인
 - 접근 시간 확인: `ls-lu`
 - 수정 시간 확인: `ls-l`
 - 변경 시간 확인: `ls-lc`
