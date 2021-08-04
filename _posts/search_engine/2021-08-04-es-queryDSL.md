@@ -2,6 +2,7 @@
 title: "Elasticsearch Document 살펴보기 - Query DSL"
 category: "search_engine"
 ---
+Elasticsearch Udemy 강의( *Complete Guide to Elastticsearch* )를 보면서 [document](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)에서 Query DSL 관련 내용을 정리한다. 
 
 # Query DSL
 Elasticsearch는 쿼리 정의에서 full Query DSL을 제공한다.Query DSL은 두 가지 유형의 clauses로 구성된다.
