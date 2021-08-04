@@ -5,13 +5,14 @@ category: "search_engine"
 Elasticsearch Udemy 강의( *Complete Guide to Elastticsearch* )를 보면서 [document](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)에서 Query DSL 관련 내용을 정리한다. 
 
 Elasticsearch는 쿼리 정의에서 full Query DSL을 제공한다.Query DSL은 두 가지 유형의 clauses로 구성된다.
-[](https://miro.medium.com/max/960/1*B2CWVPrA2EwqANIU13xe5w.png)
+![](https://miro.medium.com/max/960/1*B2CWVPrA2EwqANIU13xe5w.png)
 
 - Leaf query clauses : field의 특정 값을 찾기 위한 절인데 `match`, `term`, `range` 쿼리가 있다.
 - Compound query clauses : 다른 leaf나 compound 쿼리를 결합하기 위한 쿼리문이다.
 
 query clauses는 Query context, Filter context에 따라 다르게 적용된다. 
-## [Query / Filter context](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html) 
+## Query / Filter context
+https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-context.html
 
 ### Query context
 query context에서 *해당 document가 쿼리문과 얼마나 일치*되는가에 초점을 맞춰 쿼리가 동작한다. document를 검색하는데 inverted index에 적용한 analysis가 동일하게 적용되어 normalize된다. 예를 들어 'Lobster'를 검색하며 소문자로 변환되어 'lobster' 단어로 inverted index에서 검색하게 된다. 
@@ -65,8 +66,8 @@ GET /_search
 }
 ```
 
-## [Compound query](https://www.elastic.co/guide/en/elasticsearch/reference/current/compound-queries.html)
-
+## Compound query
+https://www.elastic.co/guide/en/elasticsearch/reference/current/compound-queries.html
 ### `bool`
 ### `boosting`
 ### `constant_score`
