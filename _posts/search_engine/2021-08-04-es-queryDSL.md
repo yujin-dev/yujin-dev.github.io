@@ -1,5 +1,5 @@
 ---
-title: "Elasticsearch Document 살펴보기 - Query DSL"
+title: "Udemy Elasticsearch - Query DSL"
 category: "search_engine"
 ---
 Elasticsearch Udemy 강의( *Complete Guide to Elastticsearch* )를 보면서 [document](https://www.elastic.co/guide/en/elasticsearch/reference/current/index.html)에서 Query DSL 관련 내용을 정리한다. 
