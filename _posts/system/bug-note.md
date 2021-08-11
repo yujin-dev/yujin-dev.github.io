@@ -47,3 +47,4 @@ df[column1].apply(lambda x: np.isnan(x))
 
 `pd.isnull` 로 적용하여 해결
 
+### OperationalError: (psycopg2.OperationalError) server closed the connection unexpectedly. This probably means the server terminated abnormally before or while processing the request.
