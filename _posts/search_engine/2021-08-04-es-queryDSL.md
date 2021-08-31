@@ -65,11 +65,3 @@ GET /_search
   }
 }
 ```
-
-## Compound query
-https://www.elastic.co/guide/en/elasticsearch/reference/current/compound-queries.html
-### `bool`
-### `boosting`
-### `constant_score`
-### `dis_max`
-### `function_score`
