@@ -22,6 +22,7 @@ Partitioning 방식은 아래와 같이 있다.
 분할된 table은 *partitioned table*이라 칭한다. declaration은 *partitioning method*와 *partition key*를 포함한다. 각각의 partition은 *partition bounds*라는 데이터 부분을 저장하고 있다. partition key column(s)에 따라 모든 rows는 partitions 중 하나에 route된다. 모든 partition은 동일한 칼럼을 가지나, partition마다 고유의 indexes, constraints, default 값을 가질 수 있다. 
 
 [ 예시 ]
+
 ```sql
 CREATE TABLE measurement (
     city_id         int not null,
@@ -34,6 +35,7 @@ CREATE TABLE measurement (
 대부분의 쿼리는 지난 주, 지난 달, 지난 분기를 접근한다고 가정하여 최근 3년치만 저장하기로 한다. 
 declarative partitiong은 다음 단계에 따라 실행된다.
 1. partitioned table을 생성한다. partition 정의는 특정 partitioning method & partitioning key로 bounds를 구성한다. 예시에서는 `measurement` 테이블로 partitioning method는 `RANGE`를, partition key로 `logdate`를 설정하였다.
+
 ```sql
 CREATE TABLE measurement (
     city_id         int not null,
@@ -42,7 +44,9 @@ CREATE TABLE measurement (
     unitsales       int
 ) PARTITION BY RANGE (logdate);
 ```
+
 2. partition은 생성한다. 각각의 partition은 bounds와 함께 정의해준다. 개별 partition은 tablespace나 parameters를 명시할 수 있다.
+
 ```sql
 CREATE TABLE measurement_y2006m02 PARTITION OF measurement
     FOR VALUES FROM ('2006-02-01') TO ('2006-03-01');
@@ -63,7 +67,9 @@ CREATE TABLE measurement_y2008m01 PARTITION OF measurement
     WITH (parallel_workers = 4)
     TABLESPACE fasttablespace;
 ```
+
 3. key column(s)에 index를 생성한다. partitioned table(`measurement`)에 정의된 index는 가상의 것으로 실제 데이터는 partition table에 존재한다.
+
 ```sql
 CREATE INDEX ON measurement(logdate);
 ```
@@ -85,6 +91,7 @@ CREATE TABLE measurement_y2008m02 PARTITION OF measurement
     FOR VALUES FROM ('2008-02-01') TO ('2008-03-01')
     TABLESPACE fasttablespace; 
 ```
+
 empty partition을 생성할 수 있다. 
 
 ```sql
@@ -101,9 +108,7 @@ ALTER TABLE measurement_y2008m02 ADD CONSTRAINT y2008m02
 ALTER TABLE measurement ATTACH PARTITION measurement_y2008m02
     FOR VALUES FROM ('2008-02-01') TO ('2008-03-01');
 ```
+
 `ATTACH PARTITION`을 실행하기 전에 `CHECK` constraint를 생성하여 partition constraint를 검증하는 작업이 필요하다. 
 
-추가 : https://www.postgresql.org/docs/current/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE
-
-### Partitioning Using Inheritance
-Partitioning은 때로 table inheritance로 실행되기도 하는데    
+추가 : <h>https://www.postgresql.org/docs/current/ddl-partitioning.html#DDL-PARTITIONING-DECLARATIVE</h>

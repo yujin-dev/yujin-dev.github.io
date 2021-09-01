@@ -16,6 +16,7 @@ https://www.elastic.co/guide/en/elasticsearch/reference/current/query-filter-con
 
 ### Query context
 query context에서 *해당 document가 쿼리문과 얼마나 일치*되는가에 초점을 맞춰 쿼리가 동작한다. document를 검색하는데 inverted index에 적용한 analysis가 동일하게 적용되어 normalize된다. 예를 들어 'Lobster'를 검색하며 소문자로 변환되어 'lobster' 단어로 inverted index에서 검색하게 된다. 
+
 ```sh 
 GET /products/_search
 {
@@ -30,6 +31,7 @@ GET /products/_search
 ### Filter context
 filter context에서는 쿼리문은 *해당 문서가 쿼리문과 일치하는*에 대한 답을 찾는 쿼리로 동작한다. 답은 boolean으로 True / False로, score를 계산하지 않는다. 
 또한, 자주 사용되는 필터는 자동으로 elasticseach에 캐싱된다. 예를 들어, 'Lobster'로 검색하는 경우 analysis를 거치지 않으므로 정확히 일치하는 경우만 결과를 반환한다. 따라서 'Lobster' / 'lobster'로 요청하느냐 따라 결과가 달라진다. 
+
 ```sh
 GET /products/_search
 {
