@@ -23,10 +23,11 @@ Jenkins의 Github Pull Request Builder을 활용하여 work branch의 빌드 상
 
 이외 [github actions](https://rdd9223.github.io/github%20action/Github_Action/)을 통해 테스트를 자동화할 수 있다.
 
+gitlab과 연동하기 위해서는 https://dejavuqa.tistory.com/143에서 참고한다.
+
 *[출처]*
 - https://taetaetae.github.io/2020/09/07/github-pullrequest-build/
 - https://forl.tistory.com/139
 
 *[참고]*
-- https://goddaehee.tistory.com/260
 - https://velog.io/@whdgh0331/vagrant-%EC%97%90%EC%84%9C-Jenkins-%EC%99%80-git-push-git-pull-request-builder-%EC%A0%81%EC%9A%A9-5ck3pmigy3
