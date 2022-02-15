@@ -22,7 +22,7 @@ Celery는 분산 메시지 전달을 기반으로 하는 비동기 task queue이
 
 task를 전달하기 위해서는 클라이언트와 Worker 사이를 중재하는 Broker가 필요하다.  Message Broker를 통해 클라이언트가 큐에 메시지를 추가하고 브로커는 해당 메시지를 worker에 전달하여 작업을 수행하게 한다.
 
-![Untitled](Task%20Queue%20f892380c6eb14aec879e4af5c7aaf9ef/Untitled.png)
+![Untitled](Task%20Queue/Untitled.png)
 
 [](https://kimdoky.github.io/tech/2019/01/23/celery-rabbitmq-tuto/)
 
@@ -63,7 +63,3 @@ python으로 작성되었지만 프로토콜은 javascript에서도 [Node-celery
 - Human Interaction : 직접 처리
 
 [](https://dongwooklee96.github.io/post/2021/03/29/%EB%A9%94%EC%8B%9C%EC%A7%80-%ED%81%90%EB%A5%BC-%EC%9D%B4%EC%9A%A9%ED%95%9C-%EB%B9%84%EB%8F%99%EA%B8%B0%EC%B2%98%EB%A6%AC-%EB%B0%8F-%EC%97%90%EB%9F%AC-%EC%B2%98%EB%A6%AC/)
-
-## 
-
-[Celery](https://www.notion.so/Celery-884de2ef30c64a07b33596dbc2b1cca4)
