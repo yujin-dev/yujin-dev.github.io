@@ -1,4 +1,4 @@
-# TIL
+# Airflow Cluster on AWS
 [Running Airflow Workflow Jobs on Amazon EKS with EC2 Spot Instances](https://aws.amazon.com/ko/blogs/containers/running-airflow-workflow-jobs-on-amazon-eks-spot-nodes/)에 따라 디버깅하며 Airflow Cluster를 생성해본다. 
 
 ## Airflow Cluster 생성하기
@@ -278,3 +278,155 @@ ip-192-168-33-252.ap-northeast-2.compute.internal   Ready    <none>   28h   v1.1
 ip-192-168-72-216.ap-northeast-2.compute.internal   Ready    <none>   28h   v1.18.20-eks-c9f1ce   192.168.72.216   3.37.123.202     Amazon Linux 2   4.14.268-205.500.amzn2.x86_64   docker://20.10.7
 ip-192-168-87-22.ap-northeast-2.compute.internal    Ready    <none>   28h   v1.18.20-eks-c9f1ce   192.168.87.22    3.34.183.44      Amazon Linux 2   4.14.268-205.500.amzn2.x86_64   docker://20.10.7
 ```
+
+AirflowUI에 접속하려 하니 로그인이 실패하였다.
+
+`kubectl exec $(kubectl get pods -n airflow | awk '{print $1}' | xargs | cut -d ' ' -f 2) -it -c webserver -n airflow /bin/bash` 로 webserver에 접속하여 postgresql client를 설치하고 DB에서 계정이 있는지 확인한다. `ab_user` 테이블에서 확인할 수 있다.
+
+없으면 `airflow users create` 로 계정을 생성하여 로그인한다.
+
+[Airflow Login Failed After Creating User](https://stackoverflow.com/questions/66280133/airflow-login-failed-after-creating-user)
+
+```
+
+예시 DAG를 트리거하면 operator에 따라 Spot Pod가 생성된다.
+
+##### example_bash_operator
+....
+    for i in range(3):
+        task = BashOperator(
+            task_id='runme_' + str(i),
+            bash_command='echo "{{ task_instance_key_str }}" && sleep 1',
+        )
+...
+    # [START howto_operator_bash_template]
+    also_run_this = BashOperator(
+        task_id='also_run_this',
+        bash_command='echo "run_id={{ run_id }} | dag_run={{ dag_run }}"',
+    )
+....
+# [START howto_operator_bash_skip]
+this_will_skip = BashOperator(
+    task_id='this_will_skip',
+    bash_command='echo "hello world"; exit 99;',
+    dag=dag,
+)
+##### 
+
+NAME                                                               READY   STATUS             RESTARTS   AGE
+airflow-845f457557-9w5pg                                           2/2     Running            0          17h
+examplebashoperatoralsorunthis.e7186c0615444d6090e5f6a9ee81225f    0/1     CrashLoopBackOff   4          2m56s
+examplebashoperatoralsorunthis.ec61ccccaf9a434b8661bf7edd74de91    0/1     CrashLoopBackOff   4          2m52s
+examplebashoperatorrunme0.01bc9ca3487a479eb467272cadd01006         0/1     CrashLoopBackOff   4          2m58s
+examplebashoperatorrunme0.ac336bfd83824c5ab4b5a37c35272aa9         0/1     CrashLoopBackOff   4          2m59s
+examplebashoperatorrunme1.11aaf07ebfb046d7a30e95262bff9ef4         0/1     Completed          5          3m
+examplebashoperatorrunme1.37bafd7e66114451942d56bdca2a1f11         0/1     CrashLoopBackOff   4          2m57s
+examplebashoperatorrunme2.0cb28accecae402f89e8283826f88945         0/1     CrashLoopBackOff   4          2m57s
+examplebashoperatorrunme2.f1d5e32724984216982575a663727051         0/1     CrashLoopBackOff   4          3m
+examplebashoperatorthiswillskip.340fe941caf24878ac236ee69977bc51   0/1     CrashLoopBackOff   4          2m53s
+examplebashoperatorthiswillskip.e5e72aadda154f5b89f7347452047a61   0/1     Completed          5          2m55s
+
+```
+각 Operator마다 Worker Pod를 생성하여 실행되는데 `CrashLoopBackOff`상태로 실패하였다. `describe`명령어로 `Args`를 보면 airflow 이미지를 받아 `airflow tasks run`으로 동작하는데 airflow config가 제대로 설정되지 않은 것으로 보인다. 
+
+```bash
+Name:         examplebashoperatorrunme0.01bc9ca3487a479eb467272cadd01006
+Namespace:    airflow
+Priority:     0
+Node:         ip-192-168-72-216.ap-northeast-2.compute.internal/192.168.72.216
+Start Time:   Thu, 24 Mar 2022 13:19:08 +0900
+Labels:       airflow-worker=4
+              airflow_version=2.2.1
+              dag_id=example_bash_operator
+              kubernetes_executor=True
+              run_id=manual__2022-03-24T041905.5161770000-e017e1369
+              task_id=runme_0
+              try_number=1
+Annotations:  dag_id: example_bash_operator
+              kubernetes.io/psp: eks.privileged
+              run_id: manual__2022-03-24T04:19:05.516177+00:00
+              task_id: runme_0
+              try_number: 1
+Status:       Running
+IP:           192.168.73.244
+IPs:
+  IP:  192.168.73.244
+Containers:
+  base:
+    Container ID:  docker://439314f36efcfa6afb739d6952230d666c2a5228e6435d8d868412ee4eb333f8
+    Image:         717473574740.dkr.ecr.ap-northeast-2.amazonaws.com/airflow-eks-demo:latest
+    Image ID:      docker-pullable://717473574740.dkr.ecr.ap-northeast-2.amazonaws.com/airflow-eks-demo@sha256:392e7758e81b68811e38e22b31f48fc06f2dc4db2e0885b9cc05b747f1c95861
+    Port:          <none>
+    Host Port:     <none>
+    Args:
+      airflow
+      tasks
+      run
+      example_bash_operator
+      runme_0
+      manual__2022-03-24T04:19:05.516177+00:00
+      --local
+      --subdir
+      DAGS_FOLDER/example_bash_operator.py
+    **State:          Waiting
+      Reason:       CrashLoopBackOff**
+    **Last State:     Terminated
+      Reason:       Completed
+      Exit Code:    0**
+      Started:      Thu, 24 Mar 2022 14:16:30 +0900
+      Finished:     Thu, 24 Mar 2022 14:16:30 +0900
+    Ready:          False
+    Restart Count:  16
+    Environment:
+      AIRFLOW_IS_K8S_EXECUTOR_POD:  True
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-d8dp4 (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             False 
+  ContainersReady   False 
+  PodScheduled      True 
+Volumes:
+  default-token-d8dp4:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-d8dp4
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                 node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type     Reason   Age                  From     Message
+  ----     ------   ----                 ----     -------
+  Normal   Created  60m (x4 over 60m)    kubelet  Created container base
+  Normal   Started  60m (x4 over 60m)    kubelet  Started container base
+  Normal   Pulling  59m (x5 over 60m)    kubelet  Pulling image "/airflow-eks-demo:latest"
+  Normal   Pulled   59m (x5 over 60m)    kubelet  Successfully pulled image "/airflow-eks-demo:latest"
+  Warning  BackOff  44s (x282 over 60m)  kubelet  Back-off restarting failed container
+```
+
+실패한 pod에 대해서 로그를 확인하니 아래와 같이 sqlite3 접속이 실패되었다고 한다. 기존에 설정한 airflow metaDB 를 PostgreSQL로 설정하였는데 airflow.cfg가 반영되지 않은 것으로 확인된다.
+```
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/site-packages/airflow/models/dagbag.py", line 331, in _load_modules_from_file
+    loader.exec_module(new_module)
+  File "<frozen importlib._bootstrap_external>", line 843, in exec_module
+  File "<frozen importlib._bootstrap>", line 219, in _call_with_frames_removed
+  File "/usr/local/lib/python3.8/site-packages/airflow/example_dags/example_python_operator.py", line 84, in <module>
+    virtualenv_task = PythonVirtualenvOperator(
+  File "/usr/local/lib/python3.8/site-packages/airflow/models/baseoperator.py", line 188, in apply_defaults
+    result = func(self, *args, **kwargs)
+  File "/usr/local/lib/python3.8/site-packages/airflow/operators/python.py", line 342, in __init__
+    raise AirflowException('PythonVirtualenvOperator requires virtualenv, please install it.')
+airflow.exceptions.AirflowException: PythonVirtualenvOperator requires virtualenv, please install it.
+[2022-03-24 07:24:26,476] {dagbag.py:334} ERROR - Failed to import: /usr/local/lib/python3.8/site-packages/airflow/example_dags/example_subdag_operator.py
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.8/site-packages/sqlalchemy/engine/base.py", line 1808, in _execute_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.8/site-packages/sqlalchemy/engine/default.py", line 732, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such table: slot_pool
+
+```
+[Upgrading from 1.10 to 2 - Airflow Documentation](https://airflow.apache.org/docs/apache-airflow/2.2.1/upgrading-from-1-10/index.html?highlight=airflow_configmap) 에 따르면 airflow 1.10 에서 2 버전으로 바뀌면서 airflow.cfg 항목이 많이 바뀐 것 같다. configmap의 airflow.cfg가 2버전에 맞게 수정되지 않아서 airflow 환경이 제대로 설정되지 않았다.
