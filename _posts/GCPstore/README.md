@@ -1,6 +1,6 @@
 # data store in Cloud SQL vs. BigQuery Storage?
 
-기존에 (1)AWS RDS(PostgreSQL)에 업데이트되고 있는 사내 DB를 BigQuery에 replicate하는 방식이 있고, (2)RDS를 Cloud SQL로 이전하고 BigQuery로 데이터를 조회하는 방법이 있다. 
+기존에 (1)AWS RDS(PostgreSQL)에 업데이트되고 있는 사내 DB를 BigQuery에 replicate하는 방식이 있고, (2)RDS를 Cloud SQL로 이전하고 External Query로 데이터를 조회하는 방법이 있다. 
 
 (1)은 BigQuery 스토리지가 데이터를 column-oriented 형식으로 저장하여 쿼리가 보다 빠르게 되고 스냅샷 저장이 용이하나 같은 데이터를 저장하는데 클라우드 비용이 2배가 소요된다. BigQuery는 OLAP에 특화되어 있어 WRITE 쿼리가 빈번하게 발생하며 장기적으로 불리할 수도 있다. 
 
