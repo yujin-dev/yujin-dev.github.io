@@ -1,4 +1,4 @@
-# PostgreSQL CDC pipeline
+# CDC pipeline
 
 AWS RDS에서 Debezium server를 통해 데이터 변경 사항을 실시간으로 빅쿼리에 업데이트할 수 있도록 한다.
 
@@ -19,3 +19,4 @@ debezium
 
 [Debezium Server](https://debezium.io/documentation/reference/operations/debezium-server.html)
 
+## Cloud SQL to BigQuery( using CDC )
