@@ -18,7 +18,7 @@
 
 [Hadoop 클러스터 만들기 | Cloud Bigtable 문서 | Google Cloud](https://cloud.google.com/bigtable/docs/creating-hadoop-cluster?hl=ko) 따라하기
 
-### 오류 발생..
+### 오류 발생
 
 ```bash
 
