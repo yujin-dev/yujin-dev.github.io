@@ -1,6 +1,11 @@
 # AWS Configure with MFA
 MFA를 추가하면서 `aws configure`에서도 인증을 추가해줘야 한다.
 
+### [IAM의 임시 보안 자격 증명](https://docs.aws.amazon.com/ko_kr/IAM/latest/UserGuide/id_credentials_temp.html)
+AWS Security Token Service(AWS STS)를 사용하면 AWS 리소스에 대한 액세스를 제어할 수 있는 임시 credential를 
+생성하여 사용자에게 제공한다.
+
+
 ## [AWS 리소스에서 임시 자격 증명 사용](https://docs.aws.amazon.com/ko_kr/IAM/latest/UserGuide/id_credentials_temp_use-resources.html)
 
 - 임시 credential을 사용해 호출할 경우 세션 토큰이 포함되어야 한다.
