@@ -1,12 +1,4 @@
-### gcp compute engine
-
-- [사전 정의된 머신 유형:](https://cloud.google.com/compute/docs/machine-types?hl=ko) 사전 빌드되어 즉시 사용 가능한 구성으로 빠르게 실행할 수 있습니다.
-- [커스텀 머신 유형](https://cloud.google.com/custom-machine-types?hl=ko): 비용의 균형을 맞추며 최적의 vCPU와 메모리 용량을 갖춘 VM을 만들 수 있습니다.
-- [스팟 머신:](https://cloud.google.com/spot-vms?hl=ko)컴퓨팅 비용을 최대 91% 줄일 수 있습니다.
-- [컨피덴셜 컴퓨팅](https://cloud.google.com/confidential-computing?hl=ko): 가장 민감한 정보를 처리 중에도 암호화할 수 있습니다.
-- [적정 크기 권장:](https://cloud.google.com/compute/docs/instances/apply-sizing-recommendations-for-instances?hl=ko#how_sizing_recommendations_work) 자동 추천 기능을 통해 리소스 사용률을 최적화할 수 있습니다.
-
-### IAM의 정책 및 권한
+## IAM의 정책 및 권한
 
 - policy는 자격 증명(user, user group 또는 role)이나 리소스와 연결될 때 해당 권한을 정의하는 AWS의 객체입니다. AWS는 IAM 보안 주체인 user나 role에서 요청을 보낼 때 policy를 평가하여 허용하거나 거부할지 결정합니다. 대부분 AWS에서 JSON 문서로 저장된다.
 
@@ -35,3 +27,28 @@ arn:partition:service:region:account-id:resource-type:resource-id
 
 - partition : aws  region group ( aws )
 - service : iam, ..
+
+
+### [Overview of Users, Groups, Roles and Policies](https://www.youtube.com/watch?v=PjKvwxTTSUk)
+
+- 태초에 account root user가 생성되는데 모든 권한을 가지고 있다.
+- 이후에 생성되는 user는 기본적으로 권한이 없고 고유의 arn값으로 구분된다.
+
+![Untitled](./img/Untitled13.png)
+
+- 최대 10명의 user로 **Group**을 구성할 수 있다.
+- **Policy**를 통해 permissions을 부여받는다. 형식은 json 형식으로 작성된다.
+- **Role**은 특정 권한들로 구성된 identity인데, 위임받아 사용이 가능하다.
+- 위임하게 되면 role에 해당된 permission을 획득하여 서로 다른 AWS account 간에 주고 받을 수 있는 특징이 있다.
+
+![Untitled](./img/Untitled14.png)
+
+### [AWS JSON 정책 요소: Principal](https://docs.aws.amazon.com/ko_kr/IAM/latest/UserGuide/reference_policies_elements_principal.html)
+
+- `Version` : default는 `2008-10-17`이지만, `2012-10-17`을 명시한다.
+- `Statement` :
+    - `Effect` : `Allow` , `Deny`
+    - `Action` : 허용 또는 거부할 AWS 서비스의 작업, 리소스, 조건 등으로 `dynamodb:DeleteItem` , `s3:GetObject` 와 같은 형식이다.
+    - `Resource` : arn을 사용하여 지정하는데 `"arn:aws:s3:::DOC-EXAMPLE-BUCKET/*"` 와 같은 형식이다.
+    - `Principal` : 허용 또는 거부할 보안 주체를 명시하는데 `{ "AWS": "arn:aws:iam::123456789012:root" }`,  `{ "AWS": "123456789012" }` 와 같이 권한을 위임할 계정을 추가한다.
+    - `Sid` : statement 고유의 식별자
