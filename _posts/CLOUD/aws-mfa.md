@@ -92,3 +92,9 @@ An error occurred (AccessDenied) when calling the ListBuckets operation: Access 
 ```
 
 자격 증명이 완료된 후에는 aws s3 버킷 목록을 제대로 가져온다.
+
+## MFA force policy
+MFA가 활성화된 사용자만 부여된 권한을 사용할 수 있도록 설정하는 정책이다.
+MFA를 강제적으로 적용하도록 policy를 생성하여 IAM user에게 attach하여 적용한다.
+
+MFA **인증** 여부를 기반으로 Resource에 대한 접근이 허용되기에 로그아웃 후 재로그인하여 인증을 거쳐야 정상적으로 부여된 권한을 사용할 수 있다.
