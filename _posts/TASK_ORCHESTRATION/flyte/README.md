@@ -241,3 +241,14 @@ LABEL org.opencontainers.image.source https://github.com/flyteorg/flytesnacks
 
 호스팅된 Flyte 환경을 사용하면 리소스( `cpu`, `mem`, `gpu`)를 할당할 수 있는 이점이 있다.  
 ex. `@task(requests=Resources(cpu="1", mem="100Mi"), limits=Resources(cpu="2", mem="150Mi"))`
+
+
+
+## **Flyte vs. Airflow ?**
+
+- Airflow DAG는 일련의 workflow 작업을 배치로 실행하고 관리하는데 용이하다고 느껴지는 반면 Flyte는 task를 쉽게 테스트하고 이미지로 빌드하여 사용하는데 용이하다고 본다. Task의 아웃풋을 저장할 수 있고 결과물을 캐싱할 수 있어 Task자체의 활용도가 더 높다고 생각된다. workflow도 이러한 task를 기반으로 구성된다. 이에 반해 Airflow는 Task를 여러 형태의 Operator로 제공하여 선택적으로 사용하는 방식이다.
+- Airflow에서 DockerOperator나 KubernetesPodOperator에서 customize 이미지를 사용하려면 Docker hub에 올려서 DAG 실행 시 다운받아 사용했지만, Flyte는 내부적으로 사용할 수 있도록 standalone으로 돌아가는 환경인 sandbox에 저장하여 따로 Docker registry에서 관리하지 않아도 된다.
+    - Airflow docker image 사용: Task로 사용할 로직을 도커 이미지로 빌드한 후 DAG에서 사용하기 위해 Docker registry에 업로드한다.
+    - Flyte docker image 사용 : 정의된 Task를 flyte에서 도커 이미지로 빌드하여 바로 저장하여 사용 가능하다.
+- Airflow 클러스터는 로컬에서 KubernetesExecutor, CeleryExecutor, LocalExecutor 등 백엔드 환경 구축에 대한 몇 가지 옵션이 있지만 Flyte는 기본적으로 도커 이미지를 받아 kubernetes에서 바로 실행된다( 설치하면 바로 파드가 생성됨 ).
+- Airflow는 기본적으로 스케줄링을 기반으로 한 workflow를 관리하지만 Flyte는 CronSchedule라는 기능을 제공하여 따로 스케줄리을 추가할 수 있다.
