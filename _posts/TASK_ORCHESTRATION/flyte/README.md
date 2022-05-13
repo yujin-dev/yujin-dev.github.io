@@ -61,8 +61,145 @@ Go to http://localhost:30080/console/projects/flytesnacks/domains/development/ex
 ![](./img/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7%2C%202022-05-11%2016-25-19.png)
 
 
-## 특징
-[User Guide](https://docs.flyte.org/projects/cookbook/en/latest/index.html)
+## [Architecture]([https://docs.flyte.org/en/latest/concepts/basics.html](https://docs.flyte.org/en/latest/concepts/basics.html))
+
+- Task
+    - versioned
+    - projects, domains
+    - caching/memoization
+    - fault tolerance : failure에 대해 retries, timeouts에 적용됨
+    - single task execution도 가능
+- Workflow
+    - **DAG** of units of work encapsulated by nodes
+    - defined in `protobuf`
+    - accept inputs and produce outputs and re-use task definitions across projects and domains
+    - 모든 workflow는 기본적으로 launchplan이 있음
+    - **Workflow nodes naturally run in parallel when possible**
+    - versioned → {Project, Domain, Name, Version}
+- Node
+    - a unit of execution or work within a workflow
+    - **Tasks are always encapsulated within a node**
+    - can have inputs and outputs → used for other nodes
+    - Targets
+        - Task Nodes → task
+        - Workflow Nodes → sub-workflow
+        - Branch Nodes → workflow graph
+- Launch plans
+    - execute workflow
+        - can be associated with multiple launch plans
+        - but an individual launch plan is always associated with a single, specific workflow
+    - 모든 workflow에는 workflow와 동일한 이름의 default launch plan이 있음
+- Schedules
+    - launch plans와 연동하여 스케줄링이 가능
+    - **schedule은 수정이 불가하여** 변경하려면 새로운 version을 생성해야 함
+    - Cron Schedule
+        
+        ```bash
+        cron_lp_every_min_of_hour = LaunchPlan.get_or_create(
+        name="my_cron_scheduled_lp",
+        workflow=date_formatter_wf,
+        schedule=CronSchedule(
+            schedule="@hourly", # Following schedule runs every hour at beginning of the hour
+            kickoff_time_input_arg="kickoff_time",
+        ),
+        
+            )
+        ```
+        
+    - FixedRate Schedule : 정해진 시간 간격에 따라 실행
+        
+        ```bash
+        fixed_rate_lp_days = LaunchPlan.get_or_create(
+            name="my_fixed_rate_lp_days",
+            workflow=positive_wf,
+            schedule=FixedRate(duration=timedelta(days=1)),
+            fixed_inputs={"name": "you"}
+        )
+        ```
+        
+- Registration
+    - Registration에는 Flyte는 workflow를 확인하여 저장
+    ![](https://raw.githubusercontent.com/flyteorg/static-resources/main/flyte/concepts/executions/flyte_wf_registration_overview.svg?sanitize=true)
+
+    - **`flytectl register CLI`** 
+        - compile the tasks into their serialized representation. During this, the task representation is bound to a container that constitutes the code for the task.
+        - compile the workflow into their serialized representation.
+    - Launch an execution using the **`FlyteAdmin launch execution API`**
+    - **`FlyteAdmin read API`** to get details of the execution
+    
+    **[ 방법 ]**
+    
+    1. 실행할 task를 docker image로 빌드하여 serialize하여 사용한다. FlyteAdmin에 등록하기 위해 flytectl register CLI를 실행한다. 여기서 Flyter Cluster 로컬에 이미지를 빌드하여 저장하진 않고 docker hub에서 가져온다.  docker image로 빌드해놓으면 재사용이 용이하다.
+    2. docker image를 사용하기 어려운 경우, tar 폴더로 압축하여 등록한다.  
+    
+    ![Untitled](./img/Untitled13.png)
+    
+- Executions
+    
+    ![](https://raw.githubusercontent.com/flyteorg/static-resources/main/flyte/concepts/executions/flyte_wf_execution_overview.svg?sanitize=true)
+    
+    - workflow execution이 트리거되면 먼저 `getLaunchPlan` 엔드포인트를 호출하여 **launch plan**를 불러온다.
+    - user-side에서 input을 설정하고 **FlyteAdmin에 실행을 요청**한다.
+    - FlyteAdmin에서 compiled workflow를 패치하여 input과 함께 **executable format으로 변환**시킨다.
+    - Kubernetes에서 execution 기록을 DB에 저장하면서 workflow를 시작한다.
+    
+- Data Types
+    - Metadata : inputs, artifacts,..
+    - Rawdata : dataframe 같은 실제 데이터
+    
+    ```bash
+    @task
+    def my_task(m: int, n: str, o: FlyteFile) -> pd.DataFrame:
+    ```
+    
+    - `FlyteFile` 또는  `pandas.DataFrame` 와 같은 형식이 사용되면 Flyte는 자동적으로 정의된 object-store 경로에서 데이터를 업로드하거나 다운받음
+    
+    ![](https://raw.githubusercontent.com/flyteorg/static-resources/main/flyte/concepts/data_movement/flyte_data_transfer.png)
+    
+    - **Flyte는 DataFlow 엔진**으로 데이터 이동을 가능하게 한다.
+
+- Data Catalog
+    - Flyte **memoizes task executions** by creating artifacts in DataCatalog
+    - Every **task instance** is represented as a **DataSet**
+        
+        ```bash
+        Dataset {
+           project: Flyte project the task was registered in
+           domain: Flyte domain for the task execution
+           name: flyte_task-<taskName>
+           version: <cache_version>-<hash(input params)>-<hash(output params)>
+        }
+        ```
+        
+    - Every **task execution** is represented as an **Artifact in the Dataset**
+        
+        ```bash
+        Artifact {
+           id: uuid
+           Metadata: [executionName, executionVersion]
+           ArtifactData: [List of ArtifactData]
+        }
+        
+        ArtifactData {
+           Name: <output-name>
+           value: <offloaded storage location of the literal>
+        }
+        ```
+        
+    - Artifact를 불러오기 위한 태그
+        
+        ```bash
+        ArtifactTag {
+           Name: flyte_cached-<unique hash of the input values>
+        }
+        ```
+        
+    
+- FlyteAdmin
+    - serves as the main Flyte API to process all client( including FlyteConsole ) requests to the system
+    - gRPC, HTTP 요청에 대해 grpc-gateway를 사용하는데 HTTP 요청에 대해 gRPC로 reverse 하기 위함이다.
+
+## [User Guide](https://docs.flyte.org/projects/cookbook/en/latest/index.html)
 
 - Flyte는 data-aware DAG 스케줄링 프로그램이다.
 - Flyte는 Docker Container 기반에서 배포된다.
