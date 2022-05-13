@@ -252,3 +252,4 @@ ex. `@task(requests=Resources(cpu="1", mem="100Mi"), limits=Resources(cpu="2", m
     - Flyte docker image 사용 : 정의된 Task를 flyte에서 도커 이미지로 빌드하여 바로 저장하여 사용 가능하다.
 - Airflow 클러스터는 로컬에서 KubernetesExecutor, CeleryExecutor, LocalExecutor 등 백엔드 환경 구축에 대한 몇 가지 옵션이 있지만 Flyte는 기본적으로 도커 이미지를 받아 kubernetes에서 바로 실행된다( 설치하면 바로 파드가 생성됨 ).
 - Airflow는 기본적으로 스케줄링을 기반으로 한 workflow를 관리하지만 Flyte는 CronSchedule라는 기능을 제공하여 따로 스케줄리을 추가할 수 있다.
+- Airflwo에서 task( operator )간에는 데이터를 주고 받는 작업을 xcoms라는 모듈을 따로 사용해야 하고 데이터 스펙에 제한이 있었지만 Flyte는 task에 대해 input, output 기능이 있고 object storage를 기반으로 한 데이터 사용이 용이하다.
