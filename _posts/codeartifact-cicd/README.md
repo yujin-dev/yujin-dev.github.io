@@ -27,6 +27,15 @@ pip, npm, gradle 과 같은 빌드 및 패키지 관리자와 사용이 가능�
 - pip, npm CLI를 사용하여 패키지를 가져오고 게시하기 위한 엔드포인트를 노출한다.
 
 
+### bug report
+pulumi로 CodeArtifact domain, repository를 생성하는데 아래와 같이 Role ARN이 필요하다는 오류가 발생한다.
+```
+error: 1 error occurred:
+        * error configuring Terraform AWS Provider: credential type source_profile requires role_arn, profile mfa
+```
+`AWSCodeArtifactAdminAccess`권한이 부여된 role을 따로 위임하여 해결하였다.
+
+
 ## Gitlab CI/CD
 
 ### CI/CD Pipeline
@@ -40,3 +49,4 @@ Jobs는 runner에 의해 실행되는데 같은 Stages 내에서 여러 Jobs가 
 ## Gitlab CiCd로 AWS CodeArtifact에 배포하기
 
 [Publis Python Packages to Codeartifact using Poetry](https://stackoverflow.com/questions/65331736/how-can-i-publish-python-packages-to-codeartifact-using-poetry)
+
