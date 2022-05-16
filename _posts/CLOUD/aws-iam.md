@@ -81,3 +81,41 @@ arn:partition:service:region:account-id:resource-type:resource-id
     - `Resource` : arn을 사용하여 지정하는데 `"arn:aws:s3:::DOC-EXAMPLE-BUCKET/*"` 와 같은 형식이다.
     - `Principal` : 허용 또는 거부할 보안 주체를 명시하는데 `{ "AWS": "arn:aws:iam::123456789012:root" }`,  `{ "AWS": "123456789012" }` 와 같이 권한을 위임할 계정을 추가한다.
     - `Sid` : statement 고유의 식별자
+
+
+## `sts:AssumeRole`
+
+STS:AssumeRole은 customer managed policy이다.
+
+1. 먼저 관련 policy를 생성한다.
+2. `aws iam attach-user-policy --policy-arn {{sts-customized-policy-arn}}--user-name {{user-name}}`로 user에 policy를 할당한다.
+3. ` aws sts assume-role --role-arn {{role-arn}} --role-session-name {{name}}`를 통해 role을 위임한다. 제대로 위임이 되면 아래와 같이 메시지가 출력된다.
+```bash
+{
+    "Credentials": {
+        "AccessKeyId": "xxx",
+        "SecretAccessKey": "xxx",
+			  "SessionToken": "xxx",
+        "Expiration": "2022-05-16T06:14:59+00:00"
+    },
+    "AssumedRoleUser": {
+        "AssumedRoleId": "xxx",
+        "Arn": "xxx"
+    }
+}
+```
+
+실패하면 resource에 대해 위임할 수 없다는 오류를 반환한다.
+
+```bash
+An error occurred (AccessDenied) when calling the AssumeRole operation: User: xxx is not authorized to perform: sts:AssumeRole on resource: arn:aws:iam::xxx:role/xxxxxxx
+```
+
+4. `aws sts get-caller-identity`를 실행하면 자격 증명을 확인할 수 있다.
+```
+{
+    "UserId": "xxx-session-xxxxx",
+    "Account": "xxxxx",
+    "Arn": "arn:aws:sts::xxx:assumed-role/xxx/session-xxxxx"
+}
+```
