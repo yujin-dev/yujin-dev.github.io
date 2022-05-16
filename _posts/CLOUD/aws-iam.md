@@ -32,6 +32,12 @@ ACL을 사용하여 ACL이 연결된 리소스에 액세스할 수 있는 다른
 
 **[Session policies](https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session)**
 
+#### identity-based policy vs. resource-based policy
+
+![](https://docs.aws.amazon.com/ko_kr/IAM/latest/UserGuide/images/Types_of_Permissions.diagram.png)
+
+- identity-based policy : user에 resource를 연결하여 추가
+- resource-based policy : resource에 user를 연결하여 추가
 
 
 ### Role
