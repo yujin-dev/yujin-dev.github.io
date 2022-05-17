@@ -48,7 +48,7 @@ Jobs는 runner에 의해 실행되는데 같은 Stages 내에서 여러 Jobs가 
 
 ## Gitlab CiCd로 AWS CodeArtifact에 배포하기
 
-[Publis Python Packages to Codeartifact using Poetry](https://stackoverflow.com/questions/65331736/how-can-i-publish-python-packages-to-codeartifact-using-poetry)
+[Publish Python Packages to Codeartifact using Poetry](https://stackoverflow.com/questions/65331736/how-can-i-publish-python-packages-to-codeartifact-using-poetry)
 
 ### Gitlab Runner
 
