@@ -50,3 +50,77 @@ Jobs는 runner에 의해 실행되는데 같은 Stages 내에서 여러 Jobs가 
 
 [Publis Python Packages to Codeartifact using Poetry](https://stackoverflow.com/questions/65331736/how-can-i-publish-python-packages-to-codeartifact-using-poetry)
 
+### Gitlab Runner
+
+#### docker로 실행하기
+1. gitlab-runner 컨테이너에 탑재된 volume에 대해 로컬 시스템을 사용한다. 
+```bash
+docker run -d --name gitlab-runner --restart always \
+  -v /srv/gitlab-runner/config:/etc/gitlab-runner \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  gitlab/gitlab-runner:latest
+```
+
+아래와 같이 register한다.
+```
+docker run --rm -it -v /srv/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register
+```
+
+2. volume을 따로 생성해준다.
+```console
+$ docker volume create gitlab-runner-config
+$ docker run -d --name gitlab-runner --restart always \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v gitlab-runner-config:/etc/gitlab-runner \
+    gitlab/gitlab-runner:latest
+```
+
+register는 아래와 같이 실행한다. 
+```
+docker run --rm -it -v gitlab-runner-config:/etc/gitlab-runner gitlab/gitlab-runner:latest register
+```
+
+#### update configuration
+변경된 config를 업데이트하려면 재시작한다.
+
+```console
+docker restart gitlab-runner
+```
+
+#### register runner
+gitlab repository - [Settings] - [CI/CD] - [Runners]Expand에서 제공하는 registration token을 이용해 runner를 등록한다.
+이후 필요한 설정을 입력한다. runner executor를 `docker`로 설정하면 프로젝트를 실행할 기본 도커 이미지를 설정할 수 있다.
+
+`docker-image`는 gitlab CI/CD pipeline이 작동할시 job이 실행되는 런타임 환경을 구성하기 위한 이미지이다. 
+
+gitlab runner 컨테이너가 실행 중인 경우 아래와 같이 register한다.
+```console
+docker container exec -it gitlab-runner gitlab-runner register -n \
+--url http://{{ip}} \
+--registration-token {{token}} \
+--description gitlab-runner \
+--executor docker \
+--docker-image {{default-image}} \
+--docker-volumes /var/run/docker.sock:/var/run/docker.sock
+```
+아래와 같이 available runner가 생긴다.  
+![](./img/Untitled.png)
+
+#### edit `.gitlab-ci.yml`
+
+`.gitlab-ci.yml`에서 각 job에 대해 적용할 gitlab runner tag를 명시해준다. gitlab runner tag는 위에서 runner에 대해 설정해준 tag이다.
+
+```
+stages:
+  - build
+  - test
+  - deploy
+
+build-job:
+  stage: build
+  script:
+    - poetry build
+  tags:
+    - artifact-test
+```
+
