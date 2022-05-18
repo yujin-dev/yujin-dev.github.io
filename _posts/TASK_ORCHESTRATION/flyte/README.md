@@ -253,3 +253,19 @@ ex. `@task(requests=Resources(cpu="1", mem="100Mi"), limits=Resources(cpu="2", m
 - Airflow 클러스터는 로컬에서 KubernetesExecutor, CeleryExecutor, LocalExecutor 등 백엔드 환경 구축에 대한 몇 가지 옵션이 있지만 Flyte는 기본적으로 도커 이미지를 받아 kubernetes에서 바로 실행된다( 설치하면 바로 파드가 생성됨 ).
 - Airflow는 기본적으로 스케줄링을 기반으로 한 workflow를 관리하지만 Flyte는 CronSchedule라는 기능을 제공하여 따로 스케줄리을 추가할 수 있다.
 - Airflwo에서 task( operator )간에는 데이터를 주고 받는 작업을 xcoms라는 모듈을 따로 사용해야 하고 데이터 스펙에 제한이 있었지만 Flyte는 task에 대해 input, output 기능이 있고 object storage를 기반으로 한 데이터 사용이 용이하다.
+
+
+## Serialize
+
+### [serialization in python](https://towardsdatascience.com/what-why-and-how-of-de-serialization-in-python-2d4c3b622f6b)
+구조화된 객체를 파일 시스템,  DB에 저장하거나 네트워크를 통해 전송할 수 있도록 byte sequence로 변환하는 프로세스를 **serialization**이라고 한다.  
+![](https://miro.medium.com/max/1199/1*AUkV8-lhBGTkvpFj_07OUw.png)  
+
+예를 들어 객체를 파일이나 DB에 저장하면 데이터를 전처리하는데 시간을 절약할 수 있다. 데이터를 한번에 전처리하고 디스크에 저장하면 매번 전처리하는 것에 비해 시간이 덜 소요된다.
+
+serialization에는 텍스트 기반과 binary 기반의 두 방식이 있다.  
+binary 방식에는 인코딩하는 경우가 포함되고 protobuf, Avro 형식이 있다. 
+텍스트 기반에는 csv, json, xml, yaml, toml 등의 형식이 있다. 
+파이썬에는 pickle,numpy,pandas 같은 라이브러리를 사용하여 serialize가 가능하다.
+
+
