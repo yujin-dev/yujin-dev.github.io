@@ -243,16 +243,19 @@ LABEL org.opencontainers.image.source https://github.com/flyteorg/flytesnacks
 ex. `@task(requests=Resources(cpu="1", mem="100Mi"), limits=Resources(cpu="2", mem="150Mi"))`
 
 
-
 ## **Flyte vs. Airflow ?**
 
-- Airflow DAG는 일련의 workflow 작업을 배치로 실행하고 관리하는데 용이하다고 느껴지는 반면 Flyte는 task를 쉽게 테스트하고 이미지로 빌드하여 사용하는데 용이하다고 본다. Task의 아웃풋을 저장할 수 있고 결과물을 캐싱할 수 있어 Task자체의 활용도가 더 높다고 생각된다. workflow도 이러한 task를 기반으로 구성된다. 이에 반해 Airflow는 Task를 여러 형태의 Operator로 제공하여 선택적으로 사용하는 방식이다.
-- Airflow에서 DockerOperator나 KubernetesPodOperator에서 customize 이미지를 사용하려면 Docker hub에 올려서 DAG 실행 시 다운받아 사용했지만, Flyte는 내부적으로 사용할 수 있도록 standalone으로 돌아가는 환경인 sandbox에 저장하여 따로 Docker registry에서 관리하지 않아도 된다.
-    - Airflow docker image 사용: Task로 사용할 로직을 도커 이미지로 빌드한 후 DAG에서 사용하기 위해 Docker registry에 업로드한다.
-    - Flyte docker image 사용 : 정의된 Task를 flyte에서 도커 이미지로 빌드하여 바로 저장하여 사용 가능하다.
-- Airflow 클러스터는 로컬에서 KubernetesExecutor, CeleryExecutor, LocalExecutor 등 백엔드 환경 구축에 대한 몇 가지 옵션이 있지만 Flyte는 기본적으로 도커 이미지를 받아 kubernetes에서 바로 실행된다( 설치하면 바로 파드가 생성됨 ).
-- Airflow는 기본적으로 스케줄링을 기반으로 한 workflow를 관리하지만 Flyte는 CronSchedule라는 기능을 제공하여 따로 스케줄리을 추가할 수 있다.
-- Airflwo에서 task( operator )간에는 데이터를 주고 받는 작업을 xcoms라는 모듈을 따로 사용해야 하고 데이터 스펙에 제한이 있었지만 Flyte는 task에 대해 input, output 기능이 있고 object storage를 기반으로 한 데이터 사용이 용이하다.
+- Airflow DAG는 일련의 workflow 작업을 배치로 실행하고 관리하는데 용이하다고 느껴지는 반면 Flyte는 task를 쉽게 테스트하고 이미지로 빌드하여 사용하는데 용이하다고 본다.
+    - Task의 아웃풋을 저장할 수 있고 결과물을 캐싱할 수 있어 task를 독립적으로 활용할 수 있다. workflow도 이러한 task를 기반으로 구성된다. 이에 반해 Airflow는 Task를 여러 형태의 Operator로 제공하여 선택적으로 사용하는 방식이다.
+    - task를 감싸는 node를 통해 input과 output을 저장하고 이를 다른 task에 전달할 수 있다. ML 파이프라인에서 모델 구축 및 학습에서 활용도가 높을 것으로 기대된다.
+    - Airflow에서 workflow를 보다 직관적으로 구현할 수 있다.
+- Airflow 클러스터는 로컬에서 KubernetesExecutor, CeleryExecutor, LocalExecutor 등 백엔드 환경 구축에 대한 몇 가지 옵션이 있지만 Flyte는 기본적으로 도커 이미지를 받아 kubernetes에서 실행된다( 설치하면 바로 파드가 생성됨 ).
+- Airflow는 기본적으로 스케줄링을 기반으로 한 workflow를 관리하지만 Flyte는 CronSchedule라는 기능을 제공하여 따로 스케줄링을 추가해야 한다.
+- Flyte에서는 project와 domain으로 구분하여 namespace가 생성된다.
+- **docker image 활용의 차이점**
+    - Airflow에서도 `DockerOperator` 나 `KubernetesPodOperator` 로 Task를 구성할 경우 커스터마이즈된 도커 이미지를 사용할 때 DAG 내부에서 Operator를 호출하여 실행된다. 먼저 DAG가 실행되면, 흐름에 따라 Operator가 순서대로 실행되는 방식이다. Operator는 DAG를 구성하는 요소로, 독립적으로 실행될 수 없다.
+    - Flyte에서는 Task를 독립적으로 실행할 수 있는데, 유저가 task를 호출하면 Flyte Admin에서 해당 task를 실행시킨다. task는 미리 정의한 도커 이미지를 받아 Pod를 띄워 실행되는데, `flytekit` 를 통해 Flyte와 통신하여 명령을 전달받아 수행된다. 도커 이미지를 직접 생성하는 경우 내부적으로 **flyte에 필요한 의존성 패키지를 설치되어야 오류가 발생하지 않는다.**( 유저가 flytekit을 통해 task 실행을 요청하면 Flyte Admin이 이를 Flyte Propeller에 전달하여 Pod를 띄워 해당 task나 workflow를 실행한다. Pod가 생성되면 `pyflyte-execute ..` 가 수행되는데 이는 flytekit가 필요함을 의미한다.)
+    ![](https://raw.githubusercontent.com/flyteorg/static-resources/main/flyte/deployment/sandbox/flyte_sandbox_single_k8s_cluster.png)
 
 
 ## Serialize
