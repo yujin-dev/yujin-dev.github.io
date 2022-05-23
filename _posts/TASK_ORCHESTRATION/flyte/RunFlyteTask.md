@@ -57,7 +57,6 @@ def run_batch() -> int:
 2. task 실행을 위한 도커 이미지는 [flytesnacks/cookbook/core at master · flyteorg/flytesnacks](https://github.com/flyteorg/flytesnacks/tree/master/cookbook/core) 를 참고하였다.
 
 ```Dockerfile
-##### core/Dockerfile ####
 FROM python:3.8-slim-buster
 LABEL org.opencontainers.image.source https://github.com/flyteorg/flytesnacks
 
@@ -181,7 +180,7 @@ Limits:
 
 ```
 
-따라서 resource 사용량이 초과하는 경우 Pod는 OOMKilled로 도중에 죽어버린다. ****`@task` **에서 resource 설정을 아래와 같이 따로 추가해야 한다.**
+따라서 resource 사용량이 초과하는 경우 Pod는 OOMKilled로 도중에 죽어버린다. **`@task` 에서 resource 설정을 아래와 같이 따로 추가해야 한다.**
 
 ```
 @task(
