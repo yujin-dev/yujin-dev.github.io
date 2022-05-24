@@ -3,18 +3,18 @@
 ### <Data Fusion에서 source 데이터베이스에서 존재하는 테이블을 BigQuery로 복제할 때 이미 기존에 테이블이 있는 경우>
 
 이미 source 데이터베이스에서 존재하는 테이블을 복제하기록 한다.
-![Untitled](Untitled.png)
+![Untitled](img4/Untitled.png)
 
 `compustat_raw`라는 dataset에 `spind_dly`라는 테이블을 replicate한다.
-![Untitled](Untitled%201.png)
+![Untitled](img4/Untitled%201.png)
 
 BigQuery에서 진행되는 작업을 아래와 진행된다.
 
-![Untitled](Untitled%202.png)
+![Untitled](img4/Untitled%202.png)
 
 - Raw data source에서 테이블 전체를 복제하여 로드한다. 로드된 데이터는 GCS에 임시로 JSONL파일로 저장된다. 파일은 빅쿼리에 로드된 후 삭제되는 것으로 파악된다. 위의 경우 4번에 걸쳐 로드 작업이 이루어진 것으로 보인다. ( Data Fusion job을 생성할 때 throughput은 1GB/1h으로 미리 설정되어 있는 상태 
 
-![Untitled](Untitled%203.png)
+![Untitled](img4/Untitled%203.png)
 
 
 - 기존 테이블의 `_sequence_num` 가장 큰 값과 임시 저장된 raw data 테이블의 `_sequence_num` 과 비교하여 기존의 Max값 이상의 데이터를 MERGE하여 업데이트한다.

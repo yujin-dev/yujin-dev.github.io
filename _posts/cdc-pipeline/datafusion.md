@@ -86,7 +86,7 @@ Caused by: com.google.api.client.googleapis.json.GoogleJsonResponseException: 40
 
 Data Fusion Start logging
 
-[default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log](Data%20Fusio%204b938/default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log)
+[default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log](img2/default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log)
 
 → Data Fusion 인스턴스를 삭제하고 재생성하니 해결됨. 이전에 임의로 버킷을 삭제하였는데 인스턴스 내에서 사용하던 스토리지가 필요했던 것 같음.
 
@@ -111,19 +111,19 @@ Failure reason: KeeperErrorCode = NoNode for /instances/567333d2-2ad3-4965-84e9-
 
 - Auto Scaling을 허용하는 클러스터를 구성( 아래는 Worker Node )
 
-![Untitled](Data%20Fusio%204b938/Untitled.png)
+![Untitled](img2/Untitled.png)
 
 - master node 1 , worker node 2로 구성된 하나의 클러스터가 생성됨을 확인( 3개의 인스턴스가 활성화됨 )
 
-![Untitled](Data%20Fusio%204b938/Untitled%201.png)
+![Untitled](img2/Untitled%201.png)
 
-![Untitled](Data%20Fusio%204b938/Untitled%202.png)
+![Untitled](img2/Untitled%202.png)
 
-![Untitled](Data%20Fusio%204b938/Untitled%203.png)
+![Untitled](img2/Untitled%203.png)
 
 Replication Job을 중단하면 클러스터도 함께 지워짐
 
-![Untitled](Data%20Fusio%204b938/Untitled%204.png)
+![Untitled](img2/Untitled%204.png)
 
 ### Setup Comparison
 
@@ -134,7 +134,7 @@ throughput은 1GB이하 /hr, 1 master + 2 worker 클러스터로 설정하였다
 - 기본적으로 하나의 인스턴스 내에서 한 개의 job을 기준으로 하나의 클러스터가 생성된다.
 - 다른 리소스 현상은 비슷한데 테이블 크기가 큰 11개의 테이블 로드로 구성된 task가 CPU를 많이 사용하였다.
 
-![Untitled](Data%20Fusio%204b938/Untitled%205.png)
+![Untitled](img2/Untitled%205.png)
 
 - Worker node가 없는 단일 노드 클러스터에서는 실행이 되지 않는 것으로 확인됨: 단일 노드 클러스터( 4CPU, 8GB )에서 20분 가량 처리가 없었는데 2개의 Worker node로 구성한 클러스터로 돌리니 약 7분만에 active table이 발생하였다.
 - 크기가 1 ~ 10GB인 테이블 11개인 경우 20분동안 active table이 하나였는데 크기가 1GB이하인 테이블 99개의 경우 20분 동안 3개의 active table이 생겼다.
@@ -145,12 +145,12 @@ throughput을 늘렸더니 ( 당연하겠지만 ) 더 빨라짐을 확인하였�
 
 [ throughput이 1GB 이하 /hr ]
 
-![Untitled](Data%20Fusio%204b938/Untitled%206.png)
+![Untitled](img2/Untitled%206.png)
 
 [ throughput이 1GB ~ 10GB/hr ]
 
-![Untitled](Data%20Fusio%204b938/Untitled%207.png)
+![Untitled](img2/Untitled%207.png)
 
 +추가적으로 시간이 지나면서 활성화된 테이블은 복제되는 데이터 양이 점점 늘어남을 알 수 있다.
 
-![Untitled](Data%20Fusio%204b938/Untitled%208.png)
+![Untitled](img2/Untitled%208.png)
