@@ -1,4 +1,4 @@
->pulumi
+> pulumi
 
 ## [Architecture](https://www.pulumi.com/docs/intro/concepts/)
 
@@ -49,3 +49,7 @@ myTask = Task('myTask',
 모든 리소스 인자는 input을 허용하여 input은 type값으로 설정한다.  
 인스턴스 개체 자체의 모든 리소스 속성은 ouput으로 type값이다.
 
+## AWS vs. Kubernetes
+pulumi-kubernetes와 aws-pulumi에서 다른 점은 pulumi-aws에서는 리소스간 의존성을 설정할 수 있어 리소스에 다른 리소스를 사용 가능하다.
+의존성이 있는 리소스는 다른 리소스가 생성되기 전에 대기하고 생성이 실패하면 자동으로 생성되지 않는다.  
+pulumi-kubernetes에서는 의존성을 따로 표시하지 않아 의존성이 있는 리소스가 있는 경우 계속 대기한다. 의존하는 리소스 생성이 실패해도 이를 인지하지 못해 pending 상태로 넘어간다.
