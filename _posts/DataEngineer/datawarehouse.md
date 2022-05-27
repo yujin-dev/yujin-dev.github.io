@@ -1,5 +1,3 @@
->DataWarehouse
-
 # SnowFlake
 
 - 기존의 하둡이나 RDB 기술 기반으로 구현되지 않았다.
@@ -69,3 +67,36 @@ Petabit 네트워크를 사용해 데이터가 빠르게 이동할 수 있다.
 출처
 - [조대협의 블로그-구글 빅데이타 플랫폼 빅쿼리 아키텍쳐 소개](https://bcho.tistory.com/1117)
 - [BigQuery 공식문서](https://cloud.google.com/bigquery/docs/introduction?hl=ko)
+
+# Data Mesh
+> [분산형 데이터 분석 아키텍처-데이터 매쉬](https://bcho.tistory.com/1379)
+
+data mesh는 데이터 분석 시스템을 분산형 서비스 형태로 개발 및 관리하는 모델이다.
+데이터 분석 시스템은 Data Warehouse -> Data Lake -> Data Mesh를 거쳐 발전하였다.
+
+## 기존 아키텍쳐
+Data Warehouse, Data Lake를 기반으로 하나의 중앙 집중화된 시스템에 데이터를 수집하고 분석하는 형태이다. 보통 데이터 엔지니어링 팀이 따로 있다.
+하지만 도메인 지식의 부족이나 예산 및 인력 부족과 같은 문제가 야기된다. 
+
+### Data Warehouse
+전통적인 RDBMS 형태에서 데이터를 모아 분석하는 아키텍쳐이다. 파일이나 DB에서 데이터를 ETL이나 CDC방식으로 Data Warehouse에 저장한다.
+- structured data를 처리하는데 유용하다.
+- 보통 상용 소프트웨어와 하드웨어를 사용해야 하기에 인프라 비용이 높다.
+
+### Data Lake
+데이터 형식에 제한 없이 비정형 데이터까지 관리가 가능하다. 
+Data Warehouse에서 기존의 RDBMS에서 배치로 데이터를 주기적으로 적재하였다면 Data Lake 기반에서는 log stream같은 실시간 streaming 데이터 처리가 가능하다.
+
+보통 Hadoop/Spark 기반으로 구축되며 HDFS를 저장소로 사용하고,  실시간 스트리밍 처리는 Kafka, spark streaming을 사용한다.
+
+## Data Mesh
+데이터 엔지니어가 각 업무별로 할당되어 있는 형태로 업무에 해당하는 도메인에 적합한 기술을 사용하여 최적화가 가능하다.
+
+### Data Catalog
+서로 다른 조직 간 데이터를 서로 크로스 조회하려면 어디에 어떤 데이터가 있는지 찾을 수 있어야 한다. 데이터 거버넌스 측면에서 데이터 검색 및 메타 데이터 관리에 대한 요소가 반드시 필요하다. 
+
+### 실시간 streaming
+실시간 데이터 처리는 message queue를 활용한다. 1:N message delivery가 가능해야 하는데 실시간 데이터 큐는 DB는 아니지만 data asset으로 분류되어 catalog에 등록되어 관리되어야 한다.
+
+### DevOps
+데이터 분석 시스템이 플랫폼화되는 것이 이상적이며 DevOps를 통해 개발 및 운영되어야 한다.
