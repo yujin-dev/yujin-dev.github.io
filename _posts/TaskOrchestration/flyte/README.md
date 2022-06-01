@@ -221,6 +221,12 @@ Go to http://localhost:30080/console/projects/flytesnacks/domains/development/ex
     - workflow labels / annotations
 - Scheduling workflows : Scheduler를 통해 Launch Plan을 자동으로 실행시킬 수 있다. `CronSchedule`
 
+### dashboard
+```bash
+flyte-contour-envoy          NodePort    10.43.27.217    <none>        80:30081/TCP,443:30775/TCP                 2d
+```
+`service`에서 확인할 수 있듯이 `flyte-contour-envoy`(30081번 포트)를 통해 대시보드에 접속한다.
+
 ### Production Config
 
 로컬에서는 Python interpreter에 의존하기 때문에 배포된 Flyte backend를 사용하는 것으로 권장한다.
@@ -256,7 +262,6 @@ ex. `@task(requests=Resources(cpu="1", mem="100Mi"), limits=Resources(cpu="2", m
     - Airflow에서도 `DockerOperator` 나 `KubernetesPodOperator` 로 Task를 구성할 경우 커스터마이즈된 도커 이미지를 사용할 때 DAG 내부에서 Operator를 호출하여 실행된다. 먼저 DAG가 실행되면, 흐름에 따라 Operator가 순서대로 실행되는 방식이다. Operator는 DAG를 구성하는 요소로, 독립적으로 실행될 수 없다.
     - Flyte에서는 Task를 독립적으로 실행할 수 있는데, 유저가 task를 호출하면 Flyte Admin에서 해당 task를 실행시킨다. task는 미리 정의한 도커 이미지를 받아 Pod를 띄워 실행되는데, `flytekit` 를 통해 Flyte와 통신하여 명령을 전달받아 수행된다. 도커 이미지를 직접 생성하는 경우 내부적으로 **flyte에 필요한 의존성 패키지를 설치되어야 오류가 발생하지 않는다.**( 유저가 flytekit을 통해 task 실행을 요청하면 Flyte Admin이 이를 Flyte Propeller에 전달하여 Pod를 띄워 해당 task나 workflow를 실행한다. Pod가 생성되면 `pyflyte-execute ..` 가 수행되는데 이는 flytekit가 필요함을 의미한다.)
     ![](https://raw.githubusercontent.com/flyteorg/static-resources/main/flyte/deployment/sandbox/flyte_sandbox_single_k8s_cluster.png)
-
 
 ## Serialize
 
