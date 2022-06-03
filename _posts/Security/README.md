@@ -82,14 +82,19 @@ SAML 제휴를 통해 KeyCloak과 Cloud ID/Google workspace 계정 간에 SSO를
 - Client Protocol : SAML
 - Client SAML endpoint : -
 
+## architecture
+keycloak은 모든 메타 데이터, 구성을 관리할 수 있는 네임스페이스와 같다.   
+![](https://developers.redhat.com/sites/default/files/styles/article_floated/public/blog/2019/11/keycloak1.png?itok=dlMycurG)
+
+
+
 ### 프로세스
 ![](https://sp-ao.shortpixel.ai/client/to_auto,q_lossless,ret_img,w_765,h_484/https://www.comakeit.com/wp-content/uploads/keycloak-1.jpg)
-
-
 > 출처  
 https://alice-secreta.tistory.com/28  
 https://www.keycloak.org/docs/latest/authorization_services/#_overview_architecture  
-https://www.comakeit.com/blog/quick-guide-using-keycloak-identity-access-management/
+https://www.comakeit.com/blog/quick-guide-using-keycloak-identity-access-management/  
+https://developers.redhat.com/blog/2019/12/11/keycloak-core-concepts-of-open-source-identity-and-access-management#wrapping_up
 
 # IAM
 IAM(ID 및 Access 관리)는 사용자가 누구인지, 사용자가 어떤 권한을 갖는지 알려준다. 
@@ -162,3 +167,5 @@ managed service로 수백만 사용자로 확장 가능한 자격 증명을 제�
 
 >출처  
 https://docs.aws.amazon.com/ko_kr/cognito/latest/developerguide/what-is-amazon-cognito.html  
+
+
