@@ -152,12 +152,3 @@ API를 위한 Cognito User Pool을 생성하고 구성하려면
 
 > 출처:  
 https://awskarthik82.medium.com/part-1-securing-aws-api-gateway-using-aws-cognito-oauth2-scopes-410e7fb4a4c0  
-
-# SAML
-인증 및 인가 정보를 담은 markup 언어로 SSO를 구현하기 위해 쓰인다.  
-여기서 SSO는 예를 들어, 온프레미스에 이미 구축해 놓은 인증 시스템에서 인증하여 AWS 리소스에 접근할 수 있다.
-
-## AWS와 연동
-![](https://boomkim.github.io/images/saml-based-federation.diagram.png)
-
-> 출처 : https://boomkim.github.io/2018/07/11/rough-draft-of-saml/
