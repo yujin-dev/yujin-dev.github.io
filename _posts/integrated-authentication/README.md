@@ -13,13 +13,12 @@ keycloak을 통해 aws 인증 시스템을 생성하고자 한다.
 
 
 ## POC
+### [AWS SAML based User Federation using Keycloak](https://neuw.medium.com/aws-connect-saml-based-identity-provider-using-keycloak-9b3e6d0111e6)
+
 로컬에서 빠르게 keycloak 서버를 띄우기 위해 docker로 간단하게 배포하였다.
 ```console
 $ docker run -p 8080:8080 --rm --name keycloak-test -e KEYCLOAK_ADMIN=admin -e KEYCLOAK_ADMIN_PASSWORD=admin quay.io/keycloak/keycloak:18.0.0 start-dev
 ```
-
-[AWS SAML based User Federation using Keycloak](https://neuw.medium.com/aws-connect-saml-based-identity-provider-using-keycloak-9b3e6d0111e6)를 참고하여 진행한다.
-
 
 1. keycloak에서 AWS를 client로 설정
 
@@ -57,3 +56,6 @@ mapping이 누락되면 아래와 같은 오류가 발생한다.
 RoleSessionName is required in AuthnResponse (Service: AWSSecurityTokenxxxx; Status Code: 400; Error Code: InvalidIdentityToken; Request ID: xxx; Proxy: null). Please try again.
 ```
 
+## AWS CLI로 Keycloak token을 사용하여 로그인
+
+### [setup with cli](https://www.wolfe.id.au/2017/11/05/aws-user-federation-with-keycloak/)
