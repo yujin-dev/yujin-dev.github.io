@@ -57,5 +57,8 @@ RoleSessionName is required in AuthnResponse (Service: AWSSecurityTokenxxxx; Sta
 ```
 
 ## AWS CLI로 Keycloak token을 사용하여 로그인
+SAML은 보통 브라우전 기반으로 터미널에서 saml assertion을 받아 aws sts를 실행해도 issuer 관련한 오류가 발생한다.
 
-### [setup with cli](https://www.wolfe.id.au/2017/11/05/aws-user-federation-with-keycloak/)
+```
+An error occurred (InvalidIdentityToken) when calling the AssumeRoleWithSAML operation: Invalid base64 SAMLResponse (Service: AWSOpenIdDiscoveryService; Status Code: 400; Error Code: AuthSamlInvalidSamlResponseExceptio
+```
