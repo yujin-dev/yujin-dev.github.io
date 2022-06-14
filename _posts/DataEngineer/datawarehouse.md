@@ -28,6 +28,91 @@ snowflake의 여러 구성 요소와 연계되어 로그인부터 쿼리 전달�
 ## User Guide
 python, Spark, JDBC, ODBC 등 기타 클라이언트용 Snowflake 제공 드라이버 및 커넥터를 사용 가능하다.
 
+## Authentication
+
+### Admin
+- [Federation 인증 및 SSO](https://docs.snowflake.com/ko/user-guide/admin-security-fed-auth.html) : 대부분의 SAML 2.0 규격 벤더를 IdP로 지원한다.
+    - SP( Service Provider ) : Snowflake 
+    - IdP( Identity Provider ) : 외부 독립적인 엔티티로, credential를 생성 및 관리하고 SSO 액세스를 위한 사용자를 인증한다.
+
+- [key pair 인증](https://docs.snowflake.com/ko/user-guide/key-pair-auth.html) : 2048비트 이상의 RSA 키 페어가 필요한데, OpenSSL을 사용하여 PEM(Privacy Enhanced Mail) public - private key pair를 생성할 수 있다. 
+    1. Snowflake 커넥터 같은 클라이언트에서 개인키를 생성한다.
+    ```console
+    $ openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8
+    -----BEGIN ENCRYPTED PRIVATE KEY-----
+    MIIE6TAbBgkqhkiG9w0BBQMwDgQILYPyCppzOwECAggABIIEyLiGSpeeGSe3xHP1
+    wHLjfCYycUPennlX2bd8yX8xOxGSGfvB+99+PmSlex0FmY9ov1J8H1H9Y3lMWXbL
+    ...
+    -----END ENCRYPTED PRIVATE KEY-----
+    ```
+    2. 공개키를 생성한다.
+    ```console
+    $ openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub 
+    -----BEGIN PUBLIC KEY-----
+    MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAy+Fw2qv4Roud3l6tjPH4
+    zxybHjmZ5rhtCz9jppCV8UTWvEXxa88IGRIHbJ/PwKW/mR8LXdfI7l/9vCMXX4mk
+    ...
+    -----END PUBLIC KEY-----
+    ```
+    3. 개인 - 공개 키 안전하게 저장
+    4. 공개키를 Snowflake 사용자에 할당
+    ```console
+    $ alter user jsmith set rsa_public_key='MIIBIjANBgkqh...';
+    ```
+    `desc user jsmith;`로 사용자의 개인키를 확인할 수 있다.
+
+- [MFA 사용](https://docs.snowflake.com/ko/user-guide/security-mfa.html) : ACCOUNTADMIN 역할의 모든 사용자는 MFA를 사용하는 것을 적극 권장된다.
+- [OAuth](https://docs.snowflake.com/ko/user-guide/oauth.html) : 사용자 credential를 공유나 저장하지 않고 Snowflake에 접근하는 것을 허용하는 개방형 표준 프로토콜이다.   
+    ![](https://docs.snowflake.com/ko/_images/oauth2-workflow.png) 
+    
+
+### Client : connect to Snowflake
+- 기본 인증 및 세션 매개 변수 설정
+    ```python
+    con = snowflake.connector.connect(
+    user='XXXX',
+    password='XXXX',
+    account='XXXX',
+    session_parameters={
+        'QUERY_TAG': 'EndOfMonthFinancials',
+        }
+    )
+    ```
+- SSO 사용 : federation 인증을 통해 SSO를 사용하여 연결 가능하다. IdP 세션을 통해 Snowflake에 접속한다. 
+- MFA 사용
+- key pair 사용 : `private_key`를 개인키 파일로 설정
+    ```python
+    import snowflake.connector
+    import os
+    from cryptography.hazmat.backends import default_backend
+    from cryptography.hazmat.primitives.asymmetric import rsa
+    from cryptography.hazmat.primitives.asymmetric import dsa
+    from cryptography.hazmat.primitives import serialization
+    with open("<path>/rsa_key.p8", "rb") as key:
+        p_key= serialization.load_pem_private_key(
+            key.read(),
+            password=os.environ['PRIVATE_KEY_PASSPHRASE'].encode(),
+            backend=default_backend()
+        )
+
+    pkb = p_key.private_bytes(
+        encoding=serialization.Encoding.DER,
+        format=serialization.PrivateFormat.PKCS8,
+        encryption_algorithm=serialization.NoEncryption())
+
+    ctx = snowflake.connector.connect(
+        user='<user>',
+        account='<account_identifier>',
+        private_key=pkb,
+        warehouse=WAREHOUSE,
+        database=DATABASE,
+        schema=SCHEMA
+        )
+
+    cs = ctx.cursor()
+    ```
+
+
 # BigQuery
 
 ## Storage
