@@ -112,6 +112,16 @@ python, Spark, JDBC, ODBC 등 기타 클라이언트용 Snowflake 제공 드라�
     cs = ctx.cursor()
     ```
 
+## [Data Sharing](https://docs.snowflake.com/ko/user-guide/data-sharing-intro.html)
+Secure Data Sharing은 계정 간에 실제 데이터가 복사되거나 전송되지 않는다. 모든 공유는 Snowflake의 고유 서비스와 메타 데이터 저장소를 수행된다. **공유 데이터는 consumer 계정의 저장소를 차지하지 않아 데이터 저장소 요금에 영향을 주지 않는다. 유일하게 부과되는 요금은 쿼리 처리를 위한 컴퓨팅 리소스 관련 요금이다.**
+
+또한, 데이터 이동이 없으므로 보다 빠르고 쉽게 접근이 가능하다.
+- Provider : DB 공유를 생성하고 DB object에 대한 액세스 권한을 부여한다. 
+- Consumer : **읽기 전용**으로 DB가 공유된다. 
+
+여기서 *Sharing*은 데이터 공유를 위해 모든 정보를 캡슐화하는 Snowflake object이다. 구성 요소는 DB 및 스키마에 대한 접근 권한 등이 포함된다.   
+![](https://docs.snowflake.com/ko/_images/data-sharing-shares.png) 
+
 
 # BigQuery
 
