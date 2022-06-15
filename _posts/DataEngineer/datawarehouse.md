@@ -63,10 +63,10 @@ python, Spark, JDBC, ODBC 등 기타 클라이언트용 Snowflake 제공 드라�
 
 - [MFA 사용](https://docs.snowflake.com/ko/user-guide/security-mfa.html) : ACCOUNTADMIN 역할의 모든 사용자는 MFA를 사용하는 것을 적극 권장된다.
 - [OAuth](https://docs.snowflake.com/ko/user-guide/oauth.html) : 사용자 credential를 공유나 저장하지 않고 Snowflake에 접근하는 것을 허용하는 개방형 표준 프로토콜이다.   
-    ![](https://docs.snowflake.com/ko/_images/oauth2-workflow.png) 
+    ![](https://docs.snowflake.com/ko/_images/oauth2-workflow.png)
     
 
-### Client : connect to Snowflake
+### Client : [connect to Snowflake](https://docs.snowflake.com/en/user-guide/python-connector-example.html#connecting-to-snowflake)
 - 기본 인증 및 세션 매개 변수 설정
     ```python
     con = snowflake.connector.connect(
@@ -78,7 +78,12 @@ python, Spark, JDBC, ODBC 등 기타 클라이언트용 Snowflake 제공 드라�
         }
     )
     ```
-- SSO 사용 : federation 인증을 통해 SSO를 사용하여 연결 가능하다. IdP 세션을 통해 Snowflake에 접속한다. 
+- SSO 사용 : federation 인증을 통해 SSO를 사용하여 연결 가능하다. IdP 세션을 통해 Snowflake에 접속한다. 대신 Programmtic SSO는 Okta만 이용이 가능하다.  
+    ```
+    Snowflake supports two methods of authenticating:
+    - Browser-based SSO
+    - Programmatic SSO (only for Okta)
+    ```
 - MFA 사용
 - key pair 사용 : `private_key`를 개인키 파일로 설정
     ```python
@@ -110,6 +115,26 @@ python, Spark, JDBC, ODBC 등 기타 클라이언트용 Snowflake 제공 드라�
         )
 
     cs = ctx.cursor()
+    ```
+- Proxy 서버 사용 : 아래의 환경 변수를 설정하여 접근한다.
+    - HTTP_PROXY
+    - HTTPS_PROXY
+    - NO_PROXY
+    
+    Snowflake의 security model은 HTTPS 인증서를 사용하는 SSL(Secure Sockets Layer) proxies가 허용되지 않는다. proxy server는 반드시 공인 CA를 사용해야 한다.
+- OAuth 연결 : OAuth로 연결해서 사용하려면 connection string은 `authenticator = oauth`로 설정하고 token을 지정해야 한다.
+
+    ```python 
+    ctx = snowflake.connector.connect(
+        user="<username>",
+        host="<hostname>",
+        account="<account_identifier>",
+        authenticator="oauth",
+        token="<oauth_access_token>",
+        warehouse="test_warehouse",
+        database="test_db",
+        schema="test_schema"
+    )
     ```
 
 ## [Data Sharing](https://docs.snowflake.com/ko/user-guide/data-sharing-intro.html)
