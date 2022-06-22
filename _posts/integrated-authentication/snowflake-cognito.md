@@ -86,10 +86,15 @@ cognito에서 lambda를 실행할 수 있도록 Role을 생성한다.
 
 위에서 생성한 role을 lambda Function의 Configuration에서 Execution Role로 설정한다.
 
-#### 4. Cognito User Pool의 Pre Token Generation으로 위에서 생성한 lambda 함수( customize-token )를 설정한다
+#### 4. Cognito User Pool의 Pre Token Generation으로 위에서 생성한 lambda 함수( `customize-token` )를 설정한다
 ![](./img/f19f3f97-c920-4f72-bc4a-50c3424d9fc1.png)
 
 #### 5. 추가적으로 Domain Name을 설정할 수 있다. 
+```
+[ bug report ]
+
+domain name을 설정하지 않으면 이후 authorization 과정에서 오류가 발생한다.
+```
 
 
 ## snowflake 설정
@@ -166,7 +171,7 @@ external_oauth_snowflake_user_mapping_attribute = 'login_name';
 - `external_oauth_issuer` : issuer endpoint( OpenID Connect Discovery URL에서도 확인 가능 )
 - `external_oauth_rsa_public_key` : 위에서 생성한 public key 값
 - `external_oauth_audience_list` : App client ID
-
+- `external_oauth_snowflake_user_mapping_attribute` : 해당 속성값을 통해 매칭하여 확인하므로 login_name과 인증하는 username이 동일해야 한다.( 여기서 email로 매칭된다.)
 
 ## Authentication
 ### User 생성
@@ -186,7 +191,7 @@ external_oauth_snowflake_user_mapping_attribute = 'login_name';
     ```
 ### Authorization Token 생성
 - 권한 확인을 위해 인증 코드를 `https://<Cognito_User_Pool_Domain>/login?response_type=code&scope=openid%email&client_id=<Cognito App Client ID>&redirect_uri=<Redirect URL>`형식의 URL에서 발급받는다. redirect_uri 은 App client에서 설정한 Callback URL과 동일해야 한다. 
-- `FORCE_CHANGE_PASSWORD`를 True로 고정되어 있어, 편의를 위해 password를 직접 바꿔주었다.
+- `FORCE_CHANGE_PASSWORD`가 True로 고정되어 있어, 편의를 위해 password를 직접 바꿔주었다.
     ```
     aws cognito-idp admin-set-user-password --user-pool-id us-east-1_CCxelpahg --username yujin.lee@naver.com --password 987654321 --permanent
     ```
@@ -194,8 +199,15 @@ external_oauth_snowflake_user_mapping_attribute = 'login_name';
     ![](./img/8da930d6-caac-4067-bd66-6bf2f898f0f7.png)
     로그인이 성공하면 위와 같이 code가 반환됨
     
-위에서 확인한 Authorization code을 사용하여 Access token을 받는다.
+    ```markdown
+    [bug report]
 
+    # todo
+    - cognito userpool 생성 시 설정한, 또는 설정된 client_id, redirect_url 값이 동일하지 않으면 로그인 화면이 뜨지 않는다.
+    - username, password으로 첫 로그인 시, 비밀번호를 바꾸라는 prompt 창이 뜬다. 비밀번호를 바꾸면 ERROR가 뜨면서 code가 반환되지 않는 문제가 있었다.
+    ```
+
+위에서 확인한 Authorization code을 사용하여 Access token을 받는다.
 ```python
 import requests
 import json
@@ -213,6 +225,7 @@ def get_token(authorization_code):
     print(response.status_code)
     return json.loads(response.content)
 ```
+여기서 `HTTPBasicAuth(client_id, client_secret)`을 통해 `{client_id}:{client_secret}`값이 base64 인코딩되어 요청에 전송된다.
 ```
 >> response = get_token(authorization_code="7d23326c-796f-4304-ab30-bccecf466e89")
 >> response
@@ -223,9 +236,18 @@ def get_token(authorization_code):
  'expires_in': 3600,
  'token_type': 'Bearer'}
 ```
+```
+[bug report]
+
+몇 가지 오류 상황이 있다.
+- invalid_client
+- unauthorized_client
+- invalid_grant : Authorization code는 일회성으로, 반복해서 사용할 경우 오류가 발생한다.
+- internal_error : 서버 측(여기서는 cognito)에서 내부적으로 에러가 발생하여 인증되지 않는다. 이번 경우에는 pre token generator에서 설정한 lambda handler가 제대로 작동하지 않아 id token이 발급되지 않았었다. lambda function을 수정하여 해결하였다.
+```
 
 ### id token을 사용하여 Snowflake에 연결
-최종적으로, oauth 인증을 통해 위에서 확인한 id_token 을 사용하여 snowflake에 연결한다.  
+최종적으로, oauth 인증을 통해 위에서 확인한 id_token 을 사용하여 snowflake에 연결한다. password를 설정하지 않고 token을 통해 인증이 가능한 것을 확인할 수 있다.
 ```python
 import snowflake.connector
 import json
@@ -245,28 +267,15 @@ cs = ctx.cursor()
 cs.execute("SELECT current_version()")
 print(cs.fetchall())
 ```
+```
+[bug report]
+
+아래와 같이 role을 부여할 수 없다는 오류가 발생한다.
+
+id token의 claims에 role을 명시하였으나, snowflake에서 유저에 해당 role에 대한 권한이 없거나 role이 존재하지 않기 때문이다. testoauth라는 role을 snowflake에서 정의하여 해결하였다.
+```
 
 ## references
-[https://community.snowflake.com/s/article/How-to-use-AWS-Cognito-and-Lambda-to-generate-a-Authorization-token-and-use-Scopes-for-Oauth-with-Snowflake](https://community.snowflake.com/s/article/How-to-use-AWS-Cognito-and-Lambda-to-generate-a-Authorization-token-and-use-Scopes-for-Oauth-with-Snowflake)
-
 [AWS Cognito Token with Authorization Code Grant PKCE returns {"error":"invalid_grant"}](https://stackoverflow.com/questions/63258246/aws-cognito-token-with-authorization-code-grant-pkce-returns-errorinvalid-g)
 
 [Token endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html)
-
-[Amazon Cognito를 이용한 OIDC 인증/인가 프로세스](https://waspro.tistory.com/669)
-
-[Pre Token Generator Lambda Trigger](https://docs.aws.amazon.com/ko_kr/cognito/latest/developerguide/user-pool-lambda-pre-token-generation.html)
-
-[How to start using AWS Cognito: Authorize, Authenticate and Federate user in [2021]](https://www.archerimagine.com/articles/aws/aws-cognito-tutorials.html)
-
-[How Amazon Cognito works with IAM](https://docs.aws.amazon.com/cognito/latest/developerguide/security_iam_service-with-iam.html)
-
-## ERRORs
-password change 오류
-
-invalid_client
-
-unauthorized_client
-
-internal_error
-
