@@ -245,6 +245,12 @@ def get_token(authorization_code):
 - invalid_grant : Authorization code는 일회성으로, 반복해서 사용할 경우 오류가 발생한다.
 - internal_error : 서버 측(여기서는 cognito)에서 내부적으로 에러가 발생하여 인증되지 않는다. 이번 경우에는 pre token generator에서 설정한 lambda handler가 제대로 작동하지 않아 id token이 발급되지 않았었다. lambda function을 수정하여 해결하였다.
 ```
+#### ***ID token*** 
+id_token은 JWT(JSON Web Token)을 인코딩한 값으로 [jwt.io](https://jwt.io/)에서 확인하여 디코딩된 내용을 확인할 수 있다.
+
+![](./img/2022-06-23-10-33-05.png)
+
+- lambda handler에서 설정한 `scope`, `scp` claims를 payload에서 확인할 수 있다. snowflake에 해당 token을 전송하면 명시된 role을 사용하도록 한다.
 
 ### id token을 사용하여 Snowflake에 연결
 최종적으로, oauth 인증을 통해 위에서 확인한 id_token 을 사용하여 snowflake에 연결한다. password를 설정하지 않고 token을 통해 인증이 가능한 것을 확인할 수 있다.
@@ -275,7 +281,6 @@ print(cs.fetchall())
 id token의 claims에 role을 명시하였으나, snowflake에서 유저에 해당 role에 대한 권한이 없거나 role이 존재하지 않기 때문이다. testoauth라는 role을 snowflake에서 정의하여 해결하였다.
 ```
 
-## references
-[AWS Cognito Token with Authorization Code Grant PKCE returns {"error":"invalid_grant"}](https://stackoverflow.com/questions/63258246/aws-cognito-token-with-authorization-code-grant-pkce-returns-errorinvalid-g)
-
-[Token endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html)
+>> references
+- error handling : [AWS Cognito Token with Authorization Code Grant PKCE returns {"error":"invalid_grant"}](https://stackoverflow.com/questions/63258246/aws-cognito-token-with-authorization-code-grant-pkce-returns-errorinvalid-g)
+- [Token endpoint](https://docs.aws.amazon.com/cognito/latest/developerguide/token-endpoint.html)
