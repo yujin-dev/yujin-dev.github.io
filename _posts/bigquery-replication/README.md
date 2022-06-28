@@ -1,11 +1,14 @@
-# Cloud SQL - Data Fusion - BigQuery
+---
+title: "Cloud SQL - Data Fusion - BigQuery"
+category: "bigquery"
+---
 
 Cloud SQL과 BigQuery 데이터를 동기화하기 위해 Data Fusion을 사용하여 파이프라인을 [A Deep dive into Cloud Data Fusion "Replication" Feature | CDC pipeline from MS SQL Server to](https://blog.searce.com/a-deep-dive-into-cloud-data-fusion-replication-feature-cdc-pipeline-from-ms-sql-server-to-5534ef58f074)
 와 같이 설계하였다.
 
 Cloud SQL에서 MySQL의 경우 binary log를 활성화하여 Data Fusion에서 CDC를 기반으로 업데이트가 진행될 수 있도록 한다.
 
-## MySQL - BigQuery Replicate
+## MySQL - BigQuery Replication
 
 [Database replication to BigQuery using change data capture | Cloud Architecture Center | Google Cloud](https://cloud.google.com/architecture/database-replication-to-bigquery-using-change-data-capture)
 
@@ -24,12 +27,12 @@ Cloud SQL에서 MySQL의 경우 binary log를 활성화하여 Data Fusion에서 
       SELECT *, ROW_NUMBER() OVER (PARTITION BY id ORDER BY change_id DESC) AS row_num
       FROM (
         SELECT * EXCEPT(change_type), change_type
-        FROM \`**$(gcloud config get-value project).cdc_tutorial.session_delta**\` UNION ALL
+        FROM \`$(gcloud config get-value project).cdc_tutorial.session_delta\` UNION ALL
         SELECT *, 'I'
-        FROM \`**$(gcloud config get-value project).cdc_tutorial.session_main\**`))
+        FROM \`$(gcloud config get-value project).cdc_tutorial.session_main\`))
     WHERE
       row_num = 1
-      AND change_type <> 'D'" **cdc_tutorial.session_latest_v**
+      AND change_type <> 'D'" cdc_tutorial.session_latest_v
     ```
     
 - **비용 최적화 방식**: 데이터 가용성이 약간 지연되는 대신 더 빠르고 저렴한 쿼리가 실행됩니다. 주기적으로 데이터를 기본 테이블에 병합할 수 있습니다.
@@ -42,7 +45,7 @@ Cloud SQL에서 MySQL의 경우 binary log를 활성화하여 Data Fusion에서 
       SELECT * EXCEPT(row_num)
       FROM (
         SELECT *, ROW_NUMBER() OVER(PARTITION BY delta.id ORDER BY delta.change_id DESC) AS row_num
-        FROM `**cdc_tutorial.session_delta**` delta )
+        FROM `cdc_tutorial.session_delta` delta )
       WHERE row_num = 1) d
     ON  m.id = d.id
       WHEN NOT MATCHED
@@ -75,21 +78,24 @@ $ gcloud sql instances patch --enable-bin-logyour-instance-name
 
 ## Enabling replication of a Cloud SQL instance
 
-> To enable replication of a Cloud SQL instance, do the following:  
-1)**Enable access to the instance from the slave.**  
-    Specifically, you need to add the slave's IP address to the list of authorized IP ranges that can access the instance. For more information, see [Configuring access control for non-App Engine applications](https://download.huihoo.com/google/gdgdevkit/DVD1/developers.google.com/cloud-sql/docs/access_control.html#appaccess) .   
-2)**Enable the binary log using the Cloud SQL API.**  
-    **Cloud SQL Admin Command LinecURL**  
-    Uses the `sql` command line tool in the [Google Cloud SDK](https://download.huihoo.com/google/gdgdevkit/DVD1/developers.google.com/cloud/sdk/index.html) .  
-    ```
+*To enable replication of a Cloud SQL instance, do the following:*
+
+*1) Enable access to the instance from the slave.*  
+    Specifically, you need to add the slave's IP address to the list of authorized IP ranges that can access the instance. For more information, see [Configuring access control for non-App Engine applications](https://download.huihoo.com/google/gdgdevkit/DVD1/developers.google.com/cloud-sql/docs/access_control.html#appaccess)
+
+*2) Enable the binary log using the Cloud SQL API.*  
+    Cloud SQL Admin Command LinecURL  
+    Uses the `sql` command line tool in the [Google Cloud SDK](https://download.huihoo.com/google/gdgdevkit/DVD1/developers.google.com/cloud/sdk/index.html) 
+    ```bash
     $ gcloud config set projectyour-project-id
-    $ gcloud sql instances patch --enable-bin-logyour-instance-name
-    ```  
- 
-( 무엇을 의미하는거? )
+    $ gcloud sql instances patch --enable-bin-logyour-instance-name    
+    ```
+
 ![Untitled](Untitled%202.png)
 
-### First Error
+## Bug Report
+
+### Error on Provisioning 
 Data Fusion에서 파이프라인을 배포하고 시작하니 provisioning이 실패하였다.   
 
 ```bash
@@ -101,13 +107,13 @@ compute engine을 설정하는데 있어 할당량에 비해 오버 스펙으로
 ![Untitled](Untitled%2011.png)
 
 
-**Quotas**  
+#### Quotas
 할당량 제도로 인해 리전마다, 리소스마다 할당량이 정해져 있어 그 이상을 넘어서는 사용할 수 없다. 할당량이 남아도 어떤 리전의 리소스를 쓰고자 할 때 전부 사용 중이라면 쓸 수가 없다. 
 
-[Resource quotas | Compute Engine Documentation | Google Cloud](https://cloud.google.com/compute/quotas#gcloud)
+> 참고: [Resource quotas | Compute Engine Documentation | Google Cloud](https://cloud.google.com/compute/quotas#gcloud)
 
-### Second Error
-해결은 못했지만 추축하건데 DB jar파일 관련한 드라이버 문제가 아닌가 싶다,,
+### Error on DeltaWorker
+해당 이슈는 DB jar파일 관련한 드라이버 문제로 추측된다.
 
 ```
 2022-03-31 12:38:59,551 - ERROR [worker-DeltaWorker-0:i.c.c.i.a.r.ProgramControllerServiceAdapter@92] - Worker Program 'DeltaWorker' failed.
