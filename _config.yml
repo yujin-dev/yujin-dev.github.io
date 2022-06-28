@@ -94,9 +94,9 @@ analytics:
 
 # Site Author
 author:
-  name             : "Hello, Mary"
+  name             : "Mary's dev-diary"
   avatar           : # path of avatar image, e.g. "/assets/images/bio-photo.jpg"
-  bio              : "working on to be a data engineer"
+  bio              : "kind of data engineer"
   location         : "Seoul, Korea"
   email            :
   links:
