@@ -1,5 +1,11 @@
-# Airflow on GKE
+---
+title: "GKE에서 Airflow Cluster 실행하기"
+category: "airflow-cluster"
+---
+
 helm chart를 이용하여 GKE에 Airflow Cluster를 구성한다. 
+
+## Debugging
 
 ```bash
 $ gcloud container clusters create airflow-cluster --machine-type n1-standard-4 --num-nodes 2 --region "asia-northeast3"
@@ -26,8 +32,8 @@ Default change: VPC-native is the default mode during cluster creation for versi
 Note: Your Pod address range (`--cluster-ipv4-cidr`) can accommodate at most 1008 node(s).
 Creating cluster airflow-cluster in asia-northeast3... Cluster is being health-checked...⠏                                                                            
 Creating cluster airflow-cluster in asia-northeast3... Cluster is being health-checked (master is healthy)...done.                                                    
-Created [https://container.googleapis.com/v1/projects/innate-plexus-345505/zones/asia-northeast3/clusters/airflow-cluster].
-To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/asia-northeast3/airflow-cluster?project=innate-plexus-345505
+Created [https://container.googleapis.com/v1/projects/my-project-123456/zones/asia-northeast3/clusters/airflow-cluster].
+To inspect the contents of your cluster, go to: https://console.cloud.google.com/kubernetes/workload_/gcloud/asia-northeast3/airflow-cluster?project=my-project-123456
 kubeconfig entry generated for airflow-cluster.
 NAME             LOCATION         MASTER_VERSION   MASTER_IP     MACHINE_TYPE   NODE_VERSION     NUM_NODES  STATUS
 airflow-cluster  asia-northeast3  1.21.9-gke.1002  34.64.205.88  n1-standard-4  1.21.9-gke.1002  6          RUNNING
@@ -50,12 +56,11 @@ $ helm show values apache-airflow/airflow > values.yaml
 $ helm upgrade --install airflow apache-airflow/airflow -n airflow -f values.yaml --debug
 ```
 
-[Deploying Airflow on Google Kubernetes Engine with Helm](https://towardsdatascience.com/deploying-airflow-on-google-kubernetes-engine-with-helm-28c3d9f7a26b)
+> 참고 : [Deploying Airflow on Google Kubernetes Engine with Helm](https://towardsdatascience.com/deploying-airflow-on-google-kubernetes-engine-with-helm-28c3d9f7a26b)
 
 아래 airflow helm charts를 참조하였다.
 
-airflow 공식문서 : [Helm Chart for Apache Airflow - helm-chart Documentation](https://airflow.apache.org/docs/helm-chart/stable/index.html)
-
+> [Helm Chart for Apache Airflow - helm-chart Documentation](https://airflow.apache.org/docs/helm-chart/stable/index.html)  
 [airflow 1.5.0 · apache-airflow/apache-airflow](https://artifacthub.io/packages/helm/apache-airflow/airflow)
 
 KubernetesExecutor로 설정되어 있어 Pod가 생성되어 각 task가 실행되었고 완료 후 pod가 종료되었다.
@@ -79,9 +84,8 @@ airflow-statsd-7586f9998-g4xp8       1/1     Running   0          45m
 airflow-triggerer-8456b4c497-nhdp9   2/2     Running   0          40m
 airflow-webserver-5997fb4b85-fm6k2   1/1     Running   0          40m
 ```
-## Bug reporting
 
-### PersistentVolumeClaim 오류
+### Error on PersistentVolumeClaim 
 AWS 기반의 EKS에 띄웠을 때는 오류가 없었는데 GCP engine에서는 PersistentVolumeClaim 관련하여 오류가 발생한다. 
 
 ```bash
@@ -116,9 +120,9 @@ Events:
 → persistence : enabled = False로 설정하여 storage를 사용하지 않도록 하였다.   
 확인해보니 노드의 Storage Class의 access와 관련된 문제인 것으로 확인된다.
 
-![](Untitled.png)
+![](./img/Untitled.png)
 
-### Cloud Storage Access denied 
+### Error : `Cloud Storage Access denied`
 airflow helm chart에서 아래와 같이 cloud storage로 remote logging을 적용하도록 한다.
 ```
   logging:
@@ -140,9 +144,9 @@ AccessDeniedException: 403 Access denied
 
 실제로 compute 서비스 계정으로 부여된 노드의 API and identity management에서 확인하니 아래와 같이 storage에 읽기 전용으로만 설정되어 있다.
 
-![](2022-04-14-19-33-54.png)
+![](./img/2022-04-14-19-33-54.png)
 
-**동등한 Identity and Access Management(IAM) 역할이 있는 커스텀 서비스 계정을 만드는 것이 좋습니다.** 라는 언급에 따라 
+**동등한 Identity and Access Management(IAM) 역할이 있는 커스텀 서비스 계정을 만드는 것이 좋습니다.**라고 권장되어, 아래와 같이 설정하였다.
 1. 서비스 계정을 새로 생성하여
 2. 필요한 권한을 부여하고
 3. 이를 기반으로 클러스터를 재생성하였다. 
@@ -167,7 +171,7 @@ $ gcloud container clusters create --service-account=$NODE_SA_EMAIL
 ```
 
 airflow 실행시켜 task를 돌리니 log가 기록되었다.
-![](2022-04-14-19-47-36.png)
+![](./img/2022-04-14-19-47-36.png)
 
 
-[GCP secret manager 참고](https://external-secrets.io/v0.4.4/provider-google-secrets-manager/)
+> 참고 : [GCP secret manager 참고](https://external-secrets.io/v0.4.4/provider-google-secrets-manager/)
