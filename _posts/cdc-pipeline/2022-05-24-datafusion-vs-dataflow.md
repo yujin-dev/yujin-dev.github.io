@@ -3,6 +3,9 @@ title: "Data Fusion vs. Data Flow"
 category: "cdc-pipeline"
 ---
 
+Google Cloud에서 Data Fusion과 Data Flow를 비교한 article을 참고하였다.
+
+## Data Fusion vs. Data Flow
 ![Untitled](img/graph.png)
 
 ![Untitled](img/differences.png)
@@ -13,7 +16,6 @@ category: "cdc-pipeline"
 - Data Fusion의 경우 worker를 프로비저닝을 전제로 한다. 자체 대시보드를 제공한다.
 
 ## MERGE query 비교
-
 ### Data Fusion
 
 ```sql
@@ -58,3 +60,12 @@ VALUES (staging.{columns}, staging._metadata_timestamp, staging._metadata_read_t
 - Data Flow에서는 primary key, log 메타 데이터를 기반으로 고유 row값을 계산한 `row_num` 칼럼을 기준으로 데이터를 업데이트한다.( Data Fusion의 `_sequence_num` 과 동일한 역할을 수행하는 것으로 보임 )
 - Data Flow `MERGE` 쿼리가 보다 복잡하여 시간이 좀 더 소요되는 것으로 보인다.
 - Data Fusion에서 사용한 임시 테이블(`_staging`)은 MERGE 완료 후 사라지지만 Data Flow에서 사용한 임시 log테이블은 잔류한다.
+
+## Dataflow with Datastream + BigQuery
+![](./img/rdb-to-bigquery.png)
+
+1. MySQL에 데이터가 변경되면 Datastream에서 이를 변경 사항을 Cloud Storage에 파일로 업데이트한다.
+	![change data capture file in Cloud Storage](./img/datafusion-gcs.png)
+2. Dataflow - Datastream to BigQuery 탬플릿을 생성하여 PubSub 알람을 통해 변경 사항을 BigQuery에 반영한다.
+3. BigQuery에 로그 테이블(`{table_name}_log`)에 데이터 변경 사항이 replicate되고 이후 원본 테이블과 MERGE한다.
+	![`sec_mthprc_log` table](./img/staging-table.png)
