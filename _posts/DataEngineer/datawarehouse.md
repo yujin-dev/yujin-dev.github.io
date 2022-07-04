@@ -1,7 +1,7 @@
 # SnowFlake
 
 - 기존의 하둡이나 RDB 기술 기반으로 구현되지 않았다.
-- 모든 Snowflake 서비스 구성 요소는 공용 클라우드 인프라에서 실행된다.
+- 모든 https://community.snowflake.com/s/article/Error-Granting-individual-privileges-on-imported-database-is-not-allowed-Use-GRANT-IMPORTED-PRIVILEGES-instead 서비스 구성 요소는 공용 클라우드 인프라에서 실행된다.
 
 ## architecture
 기존의 공유 디스크 및 비공유 데이터베이스가 결합된 하이브리드 아키텍쳐이다.
@@ -27,6 +27,40 @@ snowflake의 여러 구성 요소와 연계되어 로그인부터 쿼리 전달�
 
 ## User Guide
 python, Spark, JDBC, ODBC 등 기타 클라이언트용 Snowflake 제공 드라이버 및 커넥터를 사용 가능하다.
+
+## [Access Control](https://docs.snowflake.com/en/user-guide/security-access-control-overview.html)
+snowflake에서 access control는 DAC와 RBAC의 결합으로 이루어진다. **DAC( Discretionary Access Control )**란 각각의 object에는 owner가 존재하여 권한을 부여해주는 것을 의미하고, **RBAC( Role-based Access Control )**는 Access privilegs가 roles에 할당되어 유저에 부여됨을 설명해준다.
+- Securable object : access가 부여될 수 있는 대상이다. 
+- Role : Privilege가 부여될 수 있는 대상이다.role은 다른 role에 할당될 수도 있어, role의 계층을 생성할 수 있다.  
+- Privilege : object에 정의되는 access level이다. 
+- User
+securable object에 대한 엑세스는 *role에 할당되어 있는 privilege를 통해 가능*하다. 각각의 securable object에는 roles에 권한을 부여할 수 있는 owner가 있다. 
+
+user-based access control과는 다른 구조이다.  
+![](https://docs.snowflake.com/en/_images/access-control-relationships.png)
+
+### Securable Object
+![](https://docs.snowflake.com/en/_images/securable-objects-hierarchy.png)
+
+object를 소유한다는 것은 role에 `OWNERSHIP` privilege가 있음을 나타낸다.   
+반면에, managed access schema에서는 schema owner나 `MANAGE GRANT` privilege가 있는 role만이 object에 privilege를 부여할 수 있다.
+
+### Roles
+privilege가 부여될 수도, 취소될 수도 있는 주체이다. System-defined roles에는 몇 가지가 존재한다.
+
+![](https://docs.snowflake.com/en/_images/system-role-hierarchy.png)
+
+- ORGADMIN : organization level role
+- ACCOUNTADMIN : top-level role 
+- SECURITYADMIN 
+- USERADMIN 
+- SYSADMIN : 모든 custom role이 SYSADMIN role에 할당될 수 있도록 권장된다. 
+- PUBLIC : pseudo-role로 모든 user, role에 자동으로 부여된다. 보통 explicit access control이 필요하지 않는 경우에 사용된다.
+
+모든 active user session에는 *primary role*이라는 current role이 있다. session이 초기화되면 current role은 아래와 같이 결정된다.
+- connection에서 명시된 role이 user에 부여되어 있으면, 해당 role이 current role이 된다.
+- user에 role이 명시되지 않으면, default role이 current role이 된다.
+- user에 role이 명시되지 않았으나, default role이 설정되어 있지 않으면 PUBLIC이 사용된다.
 
 ## Authentication
 
@@ -142,10 +176,11 @@ Secure Data Sharing은 계정 간에 실제 데이터가 복사되거나 전송�
 
 또한, 데이터 이동이 없으므로 보다 빠르고 쉽게 접근이 가능하다.
 - Provider : DB 공유를 생성하고 DB object에 대한 액세스 권한을 부여한다. 
-- Consumer : **읽기 전용**으로 DB가 공유된다. 
+- Consumer : **읽기 전용** 계정이 생성되어 DB가 공유된다. 
 
 여기서 *Sharing*은 데이터 공유를 위해 모든 정보를 캡슐화하는 Snowflake object이다. 구성 요소는 DB 및 스키마에 대한 접근 권한 등이 포함된다.   
 ![](https://docs.snowflake.com/ko/_images/data-sharing-shares.png) 
+
 
 
 # BigQuery
