@@ -1,9 +1,9 @@
 ---
-title: "EKS에서 Airflow Cluster 실행하기"
-category: "airflow-cluster"
+title: "EKS에서 Airflow Cluster 실행 중 디버깅"
+category: "airflow"
 ---
 
-## Setup
+### Setup
 [https://www.notion.so/Airflow-Cluster-in-AWS-8a173c2f9b054a1090e3259e7ebafd33#8328160bd708432a9649827826c7c937](https://www.notion.so/Airflow-Cluster-in-AWS-8a173c2f9b054a1090e3259e7ebafd33)
 
 1. kubectl , eksctl 설치
@@ -16,7 +16,7 @@ category: "airflow-cluster"
     > 참고 : [https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/create-kubeconfig.html](https://docs.aws.amazon.com/ko_kr/eks/latest/userguide/create-kubeconfig.html)
     
 
-## Debugging
+## Bug Report
 
 잘 생성이 되면 아래와 같이 나온다고 한다.
 

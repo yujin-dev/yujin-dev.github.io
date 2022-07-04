@@ -1,12 +1,11 @@
 ---
-title: "GKE에서 Airflow Cluster 실행하기"
-category: "airflow-cluster"
+title: "GKE에서 Airflow Cluster 실행 중 디버깅"
+category: "airflow"
 ---
 
 helm chart를 이용하여 GKE에 Airflow Cluster를 구성한다. 
 
-## Debugging
-
+## Bug Report
 ```bash
 $ gcloud container clusters create airflow-cluster --machine-type n1-standard-4 --num-nodes 2 --region "asia-northeast3"
 ```
