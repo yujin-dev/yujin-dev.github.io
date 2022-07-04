@@ -1,8 +1,11 @@
-# register flyte task - `ContainerTask`
+---
+title: "Flyte ContainerTask"
+category: "flyte"
+---
 
-## Hello World
+`ContainerTask`를 통해 flyte task를 등록하고 실행한다.
 
-### flyte task 실행을 위한 docker image
+## flyte task 실행을 위한 docker image
 flyte 전용 worker container image를 빌드한다.
 
 ```console
@@ -10,7 +13,7 @@ $ cd flyte-worker-docker
 $ docker build . --tag flyte-worker:latest
 ```
 
-해당 이미지를 기반으로 customize하여 task에 맞는 이미지를 생성할 수 있도록 한다.(Dockerfile)
+해당 이미지를 기반으로 customize하여 task에 맞는 이미지를 생성할 수 있도록 한다.
 ```Dockerfile
 FROM flyte-worker:latest
 COPY task task
@@ -18,7 +21,7 @@ COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
 ```
 
-### task 구성
+## task 구성
 task, workflow에 대한 각각의 런타임 환경을 매번 맞추기 어려우므로 customa하여 docker image를 생성하여 `ContainerTask`를 사용하도록 한다.
 
 ```python
@@ -38,26 +41,26 @@ def run_batch():
 - `image` : task 런타임 이미지
 
 
-### task 및 workflow 등록
-1. 등록할 패키지 이름(`task`)을 serialize한다. flyte에서 task 컨테이너를 생성해서 실행할 때 사용할 이미지를 명시해야 한다. 성공적으로 완료되면 default로 `flyte-package.tgz` 폴더가 생성된다.
-```bash
-pyflyte --pkgs task package --image "flyte-worker:latest" -f
-```
+## Registration
+1. 등록할 패키지 이름(`task`)을 serialize한다. flyte에서 task 컨테이너를 생성해서 실행할 때 사용할 이미지를 명시해야 한다. 성공적으로 완료되면 default로 `flyte-package.tgz` 폴더가 생성된다.  
+  ```bash
+  pyflyte --pkgs task package --image "flyte-worker:latest" -f
+  ```
+2. flyte admin에 전달하여 등록한다. 등록할 `project`, `domain`, `version` 을 함께 지정해준다.  
+  ```bash
+  flytectl register files --project flytesnacks --domain staging --archive flyte-package.tgz --version v3
+  ```
 
-2. flyte admin에 전달하여 등록한다. 등록할 `project`, `domain`, `version` 을 함께 지정해준다.
-```bash
-flytectl register files --project flytesnacks --domain staging --archive flyte-package.tgz --version v3
-```
-- 동일한 `project` - `domain`- `version`에서는 같은 이름으로 파일 등록이 불가하다.
+이 때, **동일한 `project` - `domain`- `version`에서는 같은 이름으로 파일 등록이 불가하다.*
 
 
 ## Flyte내에서 도커 컨테이너 실행
 
 `ContainerTask`로 Task를 구성하면 아래와 같이 먼저 `flytecopilot-releas`라는 도커 이미지를 기반으로 `flyte-copilot-downloader` 컨테이너를 실행한다.(flyte-copilot) flyte propeller 기능을 위한 것으로 보인다.
 
-오류가 발생하였다(..)
-
-```
+### Bug Report
+아래와 같은 오류가 발생하였다
+```bash
 Init Containers:
   flyte-copilot-downloader:
     Container ID:  docker://6cef5dc9068e3f14bf8ed66bc2c7bbc24d37e1de5d3a90149cda426faa46902e

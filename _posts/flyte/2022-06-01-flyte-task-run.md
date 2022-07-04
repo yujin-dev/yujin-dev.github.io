@@ -1,9 +1,9 @@
-# Execute Single Task - `task`
+---
+title: "Flyte Task Execution"
+category: "flyte"
+---
 
-## run sample
-
-
-### setup
+## Setup
 1. 먼저 flyte 관련 SDK와 CLI를 설치한다.
 ```
 $ pip install flytekit
@@ -124,7 +124,7 @@ root
         ├── data/
         └── main.py
 ```
-**<i>root가 task를 실행하는 위치가 된다.</i>**
+**root path가 task를 실행하는 위치가 된다.**
 
 4. 유저가 task를 호출하기 위해 패키지로 빌드하여 flyte (admin)에 등록해야 한다. 등록을 위해 task를 serialize하고 등록할 `project` , `domain` , `version` 을 명시한다.
 ```console
@@ -226,7 +226,7 @@ domain: staging
 $ flytectl update task-resource-attribute --attrFile upgrade_resource.yaml
 ```
 
-## to-develop
+### inhancement
 - Task를 실행하게 되면 도커 이미지에 있는 코드를 불러 실행된다. 로컬에서 패키지를 빌드하여 task를 호출하지만 **실제 실행하게 되면 로컬 코드와 무관하게 도커 이미지 내에서 작동한다.** 실제로 로컬에서 호출한 task 코드와 flyte admin에서 실행한 task 코드가 살짝 다른데 오류 없이 컨테이너상의 코드대로 동작하였다. 로컬에서 패키지를 빌드하여 등록하는 과정에 대한 검토가 좀 더 필요하다.
 ```
 ##### local task code #####
