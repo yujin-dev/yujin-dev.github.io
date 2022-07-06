@@ -1,8 +1,9 @@
 # Keycloak - Snowflake 연동
 
-## Setup
+# with OpenID Connect 
 [AWS COGNITO AS CUSTOM OAUTH PROVIDER WITH SNOWFLAKE](https://community.snowflake.com/s/article/How-to-use-AWS-Cognito-and-Lambda-to-generate-a-Authorization-token-and-use-Scopes-for-Oauth-with-Snowflake)를 참고하였다.
 
+## setup
 #### 1. 먼저 snowflake에서 사용하기 위해 client를 생성한다.
 ![](./img/snowflake-client.png)
 
@@ -60,9 +61,16 @@ grant {previlege} on warehouse {warehouse_name} to role readonly;
 grant {previlege} on database {database_name} to role readonly;   
 ```
 
+# SAML2.0 
+[How we got Single Sign-On to work with Snowflake, SAML2 and Keycloak! The signed certificate version](https://frost-stefan.medium.com/how-we-got-single-sign-on-to-work-with-snowflake-saml2-and-keycloak-53f047824296)를 참고하였다.
 
-## [How we got Single Sign-On to work with Snowflake, SAML2 and Keycloak! The signed certificate version](https://frost-stefan.medium.com/how-we-got-single-sign-on-to-work-with-snowflake-saml2-and-keycloak-53f047824296)
+## Bug Report
 
+### `There can only be one enabled SAML2 integration`
+- 원인 : snowflake에서 SAML2 integration을 2개이상 생성하려면 오류가 발생한다.
+- 해결 : 기존 integration을 삭제
+
+---
 > references
 
 [Snowflake Configure External OAuth](https://docs.snowflake.com/en/user-guide/oauth-ext-custom.html#configuration-procedure)
