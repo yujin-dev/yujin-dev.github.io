@@ -53,3 +53,18 @@ myTask = Task('myTask',
 pulumi-kubernetes와 aws-pulumi에서 다른 점은 pulumi-aws에서는 리소스간 의존성을 설정할 수 있어 리소스에 다른 리소스를 사용 가능하다.
 의존성이 있는 리소스는 다른 리소스가 생성되기 전에 대기하고 생성이 실패하면 자동으로 생성되지 않는다.  
 pulumi-kubernetes에서는 의존성을 따로 표시하지 않아 의존성이 있는 리소스가 있는 경우 계속 대기한다. 의존하는 리소스 생성이 실패해도 이를 인지하지 못해 pending 상태로 넘어간다.
+
+
+## pulumi-kubernetes
+
+### `kube2pulumi`
+yaml파일을 kubernetes pulumi 코드로 변환시켜준다.
+- 설치 : `https://github.com/pulumi/kube2pulumi/releases`  
+    리눅스이므로 linux-arm64로 적용하여 다운로드받아 압축 해제하였다.
+- 사용 :  `kube2pulumi` binary 파일을 사용한다.
+    ```console
+    $ {kube2pulumi-path} python -f ./pod.yaml
+    -----
+    __main__.py에 설치된다.
+    ```
+    
