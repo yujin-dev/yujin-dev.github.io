@@ -1,4 +1,4 @@
-> bug-report
+## Bug Report
 ### `pulumi up`을 실행하는데 protobuf 관련 오류 발생
 ```console
     Traceback (most recent call last):
@@ -41,3 +41,9 @@ refusing to proceed
 error: resource ..deployment was not successfully created by the Kubernetes API server : Deployment in version "v1" cannot be handled as a Deployment: v1.Deployment.Spec: v1.DeploymentSpec.Template: v1.PodTemplateSpec.Spec: v1.PodSpec.ImagePullSecrets: []v1.LocalObjectReference: decode slice: expect [ or n, but found ", error found in #10 byte of ...|Secrets":"|..., bigger context ...|"server","protocol":"TCP"}]}],"imagePullSecrets":"","serviceAccountName":"|...
 ```
 string으로 값을 입력했는데 `LocalObjectReference`을 사용해야 한다.(해결)
+
+### [22.07.08] `stderr: error: failed to decrypt encrypted configuration value 'snowflake:password': bad value`
+- github action으로 걸어놓은 pulumi build 실패 :  This can occur when a secret is copied from one stack to another. Encryption of secrets is done per-stack and
+it is not possible to share an encrypted configuration value across stacks.
+- 원인 : github action에서 설정해놓은 `PULUMI_CONFIG_PASSPHRASE`에 맞춰 pulumi config를 실행하지 않았음
+- 해결 : `PULUMI_CONFIG_PASSPHRASE`를 github action과 동일하게 설정하여 `pulumi config set snowflake:password --secret {password}`를 실행하여 Pulumi.dev.yaml을 업데이트
