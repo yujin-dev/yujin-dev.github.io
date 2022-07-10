@@ -14,7 +14,7 @@ Id token을 사용하기 위해 아래와 같이 설정해준다.
 - Allowed OAuth Flows : Authorization code grant, Implicit grant
 - Allowed OAuth Scopes : email, openid
 
-![](./img/eb657233-edba-4549-b996-4039ab55d9f4.png)
+![](./../img/eb657233-edba-4549-b996-4039ab55d9f4.png)
 
 #### 3. lambda function을 생성한다.
 Id token을 생성하기 전에 JWT의 claim값을 변경해줘야 한다. Snowflake에서 JWT를 확인할 때 role에 관한 정보가 없으면 에러가 발생한다. 따라서 scope에 추가적으로 role을 설정한다.  
@@ -87,7 +87,7 @@ cognito에서 lambda를 실행할 수 있도록 Role을 생성한다.
 위에서 생성한 role을 lambda Function의 Configuration에서 Execution Role로 설정한다.
 
 #### 4. Cognito User Pool의 Pre Token Generation으로 위에서 생성한 lambda 함수( `customize-token` )를 설정한다
-![](./img/f19f3f97-c920-4f72-bc4a-50c3424d9fc1.png)
+![](./../img/f19f3f97-c920-4f72-bc4a-50c3424d9fc1.png)
 
 #### 5. 추가적으로 Domain Name을 설정할 수 있다. 
 ```
@@ -196,7 +196,8 @@ external_oauth_snowflake_user_mapping_attribute = 'login_name';
     aws cognito-idp admin-set-user-password --user-pool-id us-east-1_CCxelpahg --username yujin.lee@naver.com --password 987654321 --permanent
     ```
     브라우저에서 https://datatest.auth.us-east-1.amazoncognito.com/login?client_id=627aj40llfm8omle94ovmksjp4&redirect_uri=https://example.com/&response_type=code를 접속한다. 
-    ![](./img/8da930d6-caac-4067-bd66-6bf2f898f0f7.png)
+    
+    ![](./../img/8da930d6-caac-4067-bd66-6bf2f898f0f7.png)
     로그인이 성공하면 위와 같이 code가 반환됨
     
     ```markdown
@@ -248,7 +249,7 @@ def get_token(authorization_code):
 #### ***ID token*** 
 id_token은 JWT(JSON Web Token)을 인코딩한 값으로 [jwt.io](https://jwt.io/)에서 확인하여 디코딩된 내용을 확인할 수 있다.
 
-![](./img/2022-06-23-10-33-05.png)
+![](./../img/2022-06-23-10-33-05.png)
 
 - lambda handler에서 설정한 `scope`, `scp` claims를 payload에서 확인할 수 있다. snowflake에 해당 token을 전송하면 명시된 role을 사용하도록 한다.
 

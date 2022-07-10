@@ -5,7 +5,7 @@
 
 ## setup
 #### 1. 먼저 snowflake에서 사용하기 위해 client를 생성한다.
-![](./img/snowflake-client.png)
+![](./../img/snowflake-client.png)
 
 - Client Protocol : openid-connect
 - Access Type : confidential  
@@ -16,14 +16,14 @@
 - Standard Flow Enabled
 
 #### 2. snowflake 연결을 위해 사용할 role을 명시하기 위해 role을 생성한다.
-![](./img/snowflake-client-role.png)
+![](./../img/snowflake-client-role.png)
 
 - `readonly` 라는 이름의 role을 사용할 것이기에 `session:role:readonly`를 추가한다.
 
 #### 3. ID Token에서 Client Role에 대한 사항을 claim으로 추가하기 위한 mapper를 생성한다.
 
 #### 3-1) `roles`
-![](./img/snowflake-client-role-mapper.png)
+![](./../img/snowflake-client-role-mapper.png)
 
 - Mapper Type : User Client Role
 - Client ID : snowflake
@@ -32,7 +32,7 @@
 
 #### 3-2) `upn`
 Builtin에서 claim을 추가할 수 있다.
-![](./img/snowflake-client-role-builtin.png)
+![](./../img/snowflake-client-role-builtin.png)
 
 #### 4. Snowflake에서 keycloak연동을 위한 security integration을 생성한다.
 
