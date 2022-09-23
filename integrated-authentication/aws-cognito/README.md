@@ -2,7 +2,7 @@
 
 Cognito와 AWS S3를 연동하여 사용자를 관리한다.  
 
-![](./img/e6bdccc4-8eb8-49c6-ad08-c8a0e4db983c.png)
+![](../img/e6bdccc4-8eb8-49c6-ad08-c8a0e4db983c.png)
 
 ### Federation Paradigm 
 - AWS  cognito identiy pool은 인증을 위해 federated identity를 사용한다.
@@ -22,7 +22,7 @@ Cognito와 AWS S3를 연동하여 사용자를 관리한다.
 - Authenticated identities : Allow Basic Flow으로 설정( 선택 )
 - Authentication providers : Cognito User Pool을 사용할 것이므로 적용할 User Pool ID, App client ID를 설정한다.
 
-![](./img/512ce1e4-8786-4be1-ba99-54eca2b0de36.png)
+![](../img/512ce1e4-8786-4be1-ba99-54eca2b0de36.png)
 
 #### 3. Role 생성 및 할당
 S3 버킷에 대한 접근만 허용한다면 아래와 같이 policy를 설정하여 Role을 생성한다.

@@ -18,7 +18,7 @@ CDAP이란 Hadoop 에코시스템을 위한 통합 오픈 소스 개발 플랫�
 data fusion에서 replication을 사용하여 BigQuery로 데이터를 복사할 수 있는데 **postgresql은 지원되지 않는다**.
 MySQL, Oracle, MS SQL 중에 선택해서 사용한다.
 
-![Untitled](./img/datafusion-mysql.png)
+![Untitled](../img/datafusion-mysql.png)
 
 #### *Cloud SQL을 복제하는 경우*
 Cloud SQL instance를 복제하는 경우는 아래에 따라 설정한다.
@@ -40,14 +40,14 @@ Cloud SQL instance를 복제하는 경우는 아래에 따라 설정한다.
 DataFusion은 Dataproc cluster를 생성하고 source DB에 연결하여 binary log로부터의 CDC를 실행하게 된다.
 
 - Data Fusion 하나의 인스턴스 내에서 한 개의 job을 기준으로 하나의 클러스터가 생성된다.  
-	![Untitled](img/cdap-cluster.png)  
-	![Untitled](img/cdap-cluster-detail.png)
+	![Untitled](../img/cdap-cluster.png)  
+	![Untitled](../img/cdap-cluster-detail.png)
 - Master Node 1, Worker Node 2개로 설정하니 다음과 같이 3개의 Node(VM)가 생성되었다.  
-  ![](img/worker-node-conf.png)
-	![Untitled](img/cdap-nodes.png)	 
+  ![](../img/worker-node-conf.png)
+	![Untitled](../img/cdap-nodes.png)	 
 
 - Replication Job을 중단하면 클러스터도 자동으로 함께 삭제됨을 알 수 있다.(Deleting)  
-  ![Untitled](img/cdap-deleting.png)
+  ![Untitled](../img/cdap-deleting.png)
 
 ### Comparison
 
@@ -59,7 +59,7 @@ DataFusion은 Dataproc cluster를 생성하고 source DB에 연결하여 binary 
 #### **Resource 사용량**
 다른 리소스 현상은 비슷한데 테이블 크기가 큰 11개의 테이블 로드로 구성된 task가 CPU를 많이 사용하였다.  
 
-![Untitled](img/over-max-cpu.png)
+![Untitled](../img/over-max-cpu.png)
 
 #### **처리 속도**
 크기가 1 ~ 10GB인 테이블 11개인 경우 20분동안 active table이 하나였는데 크기가 1GB이하인 테이블 99개의 경우 20분 동안 3개의 active table이 생겼다.
@@ -69,13 +69,13 @@ replicate하려는 테이블 갯수가 더 많은데도 같은 throughput에서 
 throughput을 늘렸더니 ( 당연하겠지만 ) 더 빨라짐을 확인하였다.
 
 - throughput이 1GB 이하 /hr
-  ![Untitled](img/perf1.png)
+  ![Untitled](../img/perf1.png)
 
 - throughput이 1GB ~ 10GB/hr ]
-  ![Untitled](img/perf2.png)
+  ![Untitled](../img/perf2.png)
 
 시간이 지나면서 활성화된 테이블은 복제되는 데이터 양이 점점 늘어남을 알 수 있다.  
-![Untitled](img/perf3.png)
+![Untitled](../img/perf3.png)
 
 
 #### *추가적으로,* 
@@ -92,7 +92,7 @@ PROVISION task failed in REQUESTING_CREATE state for program run program_run:def
 ```  
 compute engine을 설정하는데 있어 할당량에 비해 오버 스펙으로 설정해서 할당량이 초과되는 문제가 있었다. 확인해보니 실제로 모니터링에서 CPUS가 100% 차지하는 현상이 있었다.
 
-![Untitled](./img/quotas.png)
+![Untitled](../img/quotas.png)
 
  Quotas
 할당량 제도로 인해 리전마다, 리소스마다 할당량이 정해져 있어 그 이상을 넘어서는 사용할 수 없다. 할당량이 남아도 어떤 리전의 리소스를 쓰고자 할 때 전부 사용 중이라면 쓸 수가 없다. 
@@ -128,7 +128,7 @@ Caused by: com.google.api.client.googleapis.json.GoogleJsonResponseException: 40
 ```
 Data Fusion 인스턴스를 삭제하고 재생성하니 해결되었다.(이전에 임의로 버킷을 삭제하였는데 인스턴스 내에서 사용하던 스토리지가 필요한 것으로 보인다.)
 
-> 참고: [default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log](img2/default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log)
+> 참고: [default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log](../img/default-xf-replication-workers-DeltaWorker-0192c657-b683-11ec-b253-eaa8cd9145e1.log)
 
 ### `Failed to load a batch of changes from GCS into staging table`
 해당 오류는 데이터를 로드할 수 없다는 내용인데 BigQuery에서 받아들일 수 없는 문자( 해시값 같은 )가 포함되어 있었던 것으로 추정된다.

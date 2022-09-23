@@ -119,7 +119,7 @@ Events:
 → persistence : enabled = False로 설정하여 storage를 사용하지 않도록 하였다.   
 확인해보니 노드의 Storage Class의 access와 관련된 문제인 것으로 확인된다.
 
-![](./img/Untitled.png)
+![](../img/Untitled.png)
 
 ### Error : `Cloud Storage Access denied`
 airflow helm chart에서 아래와 같이 cloud storage로 remote logging을 적용하도록 한다.
@@ -143,7 +143,7 @@ AccessDeniedException: 403 Access denied
 
 실제로 compute 서비스 계정으로 부여된 노드의 API and identity management에서 확인하니 아래와 같이 storage에 읽기 전용으로만 설정되어 있다.
 
-![](./img/2022-04-14-19-33-54.png)
+![](../img/2022-04-14-19-33-54.png)
 
 **동등한 Identity and Access Management(IAM) 역할이 있는 커스텀 서비스 계정을 만드는 것이 좋습니다.**라고 권장되어, 아래와 같이 설정하였다.
 1. 서비스 계정을 새로 생성하여
@@ -170,7 +170,7 @@ $ gcloud container clusters create --service-account=$NODE_SA_EMAIL
 ```
 
 airflow 실행시켜 task를 돌리니 log가 기록되었다.
-![](./img/2022-04-14-19-47-36.png)
+![](../img/2022-04-14-19-47-36.png)
 
 
 > 참고 : [GCP secret manager 참고](https://external-secrets.io/v0.4.4/provider-google-secrets-manager/)

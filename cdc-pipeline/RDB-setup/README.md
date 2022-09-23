@@ -58,11 +58,11 @@ lower_case_table_names, character_set*, collation*에 대한 설정사항을 변
 
 Cloud RDMBS를 사용할 경우 다음과 같은 주의사항이 있다.
 - Cloud SQL MySQL에서는 8.0 버전 이상인 경우 `lower_case_table_names=1` 이 지원되지 않는다.  
-        ![Untitled](img/cloud-sql-lower-case.png)  
+        ![Untitled](../img/cloud-sql-lower-case.png)  
     > 출처: [Configure database flags | Cloud SQL for MySQL | Google Cloud](https://cloud.google.com/sql/docs/mysql/flags)
 
 - AWS RDS MySQL에서는 지원되나 인스턴스 생성시 파라미터 그룹을 변경하여 반영해야  한다.  
-    ![Untitled](img/rds-lower-case.png)
+    ![Untitled](../img/rds-lower-case.png)
 
 Cloud SQL은 8.0이상은 해당 파라미터 변경이 지원되지 않으므로, AWS RDS MySQL를 적용하였다.
 
