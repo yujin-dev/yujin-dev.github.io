@@ -277,7 +277,7 @@ $ kubectl get pods
 NAME          READY   STATUS      RESTARTS   AGE
 py39-cacher   0/1     Completed   0          60s
 ```
-ㄴ
+
 원격으로 Flyte Cluster에서 실행하려면 `--remote` 옵션을 추가한다.
 ```console
 $ pyflyte run --remote example.py wf --n 500 --mean 42 --sigma 2
