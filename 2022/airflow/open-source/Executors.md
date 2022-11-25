@@ -388,7 +388,7 @@ class BulkStateFetcher(LoggingMixin):
 ### Task Execution Process
 ![](https://airflow.apache.org/docs/apache-airflow/stable/_images/run_task_on_celery_executor.png)
 
-위에서 3. Pool Task / 4. Send Task 및 11. Save Celery task state를 확인할 수 있다.
+위에서 task를 실행시키는 과정을 `executors/celery_executor.py`에서 확인할 수 있다.
 
 ```python
 class CeleryExecutor(BaseExecutor):
@@ -458,3 +458,95 @@ def send_task_to_executor(
 
     return key, command, result
 ```
+
+celery worker를 실행시키는 과정은 `airflow/cli/commands/celery_command.py`에서 참고할 수 있다.
+
+아래 `worker`를 통해 Airflow Celery worker를 실행된다.
+
+```python
+from airflow.executors.celery_executor import app as celery_app
+
+WORKER_PROCESS_NAME = "worker"
+
+@cli_utils.action_cli
+def worker(args):
+    # Disable connection pool so that celery worker does not hold an unnecessary db connection 
+    ...
+
+    # Setup locations
+    pid_file_path, stdout, stderr, log_file = setup_locations(
+        process=WORKER_PROCESS_NAME,
+        pid=args.pid,
+        stdout=args.stdout,
+        stderr=args.stderr,
+        log=args.log_file,
+    )
+
+    if hasattr(celery_app.backend, "ResultSession"):
+        # Pre-create the database tables now, otherwise SQLA via Celery has a
+        # race condition where one of the subprocesses can die with "Table
+        # already exists" error, because SQLA checks for which tables exist,
+        # then issues a CREATE TABLE, rather than doing CREATE TABLE IF NOT EXISTS
+        ...
+
+    # celery logging setup
+    ...
+
+    # Setup Celery worker
+    options = [
+        "worker",
+        "-O",
+        "fair",
+        "--queues",
+        args.queues,
+        "--concurrency",
+        args.concurrency,
+        "--hostname",
+        args.celery_hostname,
+        "--loglevel",
+        celery_log_level,
+        "--pidfile",
+        pid_file_path,
+    ]
+    if autoscale:
+        options.extend(["--autoscale", autoscale])
+    if args.without_mingle:
+        options.append("--without-mingle")
+    if args.without_gossip:
+        options.append("--without-gossip")
+
+    if conf.has_option("celery", "pool"):
+        pool = conf.get("celery", "pool")
+        options.extend(["--pool", pool])
+        
+        maybe_patch_concurrency(["-P", pool])
+
+    if args.daemon:
+        # Run Celery worker as daemon
+        handle = setup_logging(log_file)
+
+        with open(stdout, "a") as stdout_handle, open(stderr, "a") as stderr_handle:
+            if args.umask:
+                umask = args.umask
+            else:
+                umask = conf.get("celery", "worker_umask", fallback=settings.DAEMON_UMASK)
+
+            stdout_handle.truncate(0)
+            stderr_handle.truncate(0)
+
+            daemon_context = daemon.DaemonContext(
+                files_preserve=[handle],
+                umask=int(umask, 8),
+                stdout=stdout_handle,
+                stderr=stderr_handle,
+            )
+            with daemon_context, _serve_logs(skip_serve_logs):
+                celery_app.worker_main(options)
+
+    else:
+        # Run Celery worker in the same process
+        with _serve_logs(skip_serve_logs):
+            celery_app.worker_main(options)
+```
+
+`airflow celery worker`를 호출하면 위와 Celery Worker가 생성되어 실행된다. Celery 인스턴스는 `celery_executor`에서 생성한 객체를 받아 사용된다.
