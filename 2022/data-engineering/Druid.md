@@ -8,7 +8,7 @@ Apache Druid는 OLAP 데이터베이스로, 데이터를 다차원 정보로 적
 
 Druid는 Column-oriented이며, search system과 timeseries DB의 특징을 모두 포함하고 있다.
 
-## Architecture
+## [Architecture](https://druid.apache.org/docs/latest/design/architecture.html)
 ![](https://druid.apache.org/docs/latest/assets/druid-architecture.png)
 
 Druid 서버는 크게 3가지로 구분된다.
