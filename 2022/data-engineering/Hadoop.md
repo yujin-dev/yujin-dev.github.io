@@ -14,4 +14,6 @@ HDFS는 Master-Slave 구조로, Master의 주도 하에 Slave 노드를 제어�
 ## MapReduce
 분산처리가 가능한 시스템에서 분산 저장된 데이터를 병렬로 처리하게 한다. 대용량 데이터 처리에 적합하며 특정 데이터를 갖고 있는 DataNode만 분석하여 결과를 취합한다. 
 
-![하둡(Hadoop) 기초 정리](https://han-py.tistory.com/361)
+---
+출처  
+[하둡(Hadoop) 기초 정리](https://han-py.tistory.com/361)
