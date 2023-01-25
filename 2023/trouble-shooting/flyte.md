@@ -1,4 +1,4 @@
-### [23.01.18]
+## [23.01.18]
 ```
 Pod failed. No message received from kubernetes.
 [xxxxxxxxxxxxxxxxxxxxx-n0-0] terminated with exit code (1). Reason [Error]. Message: 
@@ -31,4 +31,5 @@ Original exception: Called process exited with error code: 1.  Stderr dump:
 b'upload failed: ../tmp/flyte-j30gyo6a/sandbox/local_flytekit/engine_dir/error.pb to s3://my-s3-bucket/metadata/propeller/alert-development-xxxxxxxxxxxxxxxxxxxxx/n0/data/0/error.pb An error occurred (AccessDenied) when calling the PutObject operation: Access Denied.\n'
 .
 ```
-- Flyte 내부적으로 결과값을 s3에 임시로 저장한 후 불러오는데, 권한 오류가 발생하였다. Flyte 오류이 
+- Flyte 내부적으로 결과값을 s3에 임시로 저장한 후 불러오는데, 권한 오류가 발생하였다.
+- workflow 내에서 boto3 모듈을 사용할 경우 발생할 수 있는 이슈이다.
