@@ -32,4 +32,5 @@ b'upload failed: ../tmp/flyte-j30gyo6a/sandbox/local_flytekit/engine_dir/error.p
 .
 ```
 - Flyte 내부적으로 결과값을 s3에 임시로 저장한 후 불러오는데, 권한 오류가 발생하였다.
-- workflow 내에서 boto3 모듈을 사용할 경우 발생할 수 있는 이슈이다.
+- AWS_ACCESS_KEY, AWS_SECRET_ACCESS_KEY를 환경변수로 하여 개인 AWS 계정으로 설정하였는데, 여기서 위와 같은 인증 오류가 발생한 것 같다.
+- 해결 : 환경 변수 이름을 변경하고, boto3를 task 내에서 호출하는 것으로 변경
