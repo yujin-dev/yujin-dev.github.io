@@ -30,3 +30,10 @@ DB::Exception: Direct select is not allowed. To enable use setting `stream_like_
 ```
 - kafka engine table을 사용할 때 따로 설정이 필요함
 - 해결 : `set stream_like_engine_allow_direct_select=1`
+
+## [23.02.09]
+```
+remote connection error
+```
+- [Connecting to ClickHouse from external network](https://groups.google.com/g/clickhouse/c/T8sSPOEqOMk)
+- 해결 : uncomment `<listen_host>0.0.0.0</listen_host>`
