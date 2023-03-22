@@ -1,4 +1,9 @@
 
+Let's migrate data from Snowflake to Clickhouse.
+
+1. Unload raw data from Snowflake to S3. In this case, I used AWS external S3 bucket for snowflake stage.
+2. Create Clickhouse table. For prequiremnets, Snowflake table schema should be converted to Clikchouse table schema with matched data types.
+3. Insert data from S3 to Clickhouse with S3 table engine. 
 
 # Parameters
 ### [Snowflake] `COPY INTO` parameters settings 
@@ -57,14 +62,14 @@ Array에 들어갈 데이터 타입을 명시해야 함
 
 |snowflake|clickhouse|
 |---------|---|
-| TEXT | String |
+| TEXT | String, FixedString |
 | DATE | Date |
-| FLOAT | Float64 |
+| FLOAT | Float32, Float64, .. | 
 | NUMBER | Decimal |
 | BOOLEAN | Bool |
-| TIMESTAMP_LTZ | DateTime64 |
-| TIMESTAMP_NTZ | DateTime64 |
-| TIMESTAMP_TZ | DateTime64 |
+| TIMESTAMP_LTZ | DateTime, DateTime64, .. |
+| TIMESTAMP_NTZ | DateTime, DateTime64, .. |
+| TIMESTAMP_TZ | DateTime, DateTime64, .. |
 | OBJECT | JSON |
 | ARRAY | Array |
 
