@@ -1,3 +1,9 @@
+---
+layout: post
+title: Migration from Snowflake to Clickhouse
+date: 2023-03-23
+categories: [CLICKHOUSE]
+---
 
 Let's migrate data from Snowflake to Clickhouse.
 
@@ -20,10 +26,10 @@ Let's migrate data from Snowflake to Clickhouse.
 - `ESCAPE = NONE`
 - `ESCAPE_UNENCLOSED_FIELD = \\`
 - `FIELD_OPTIONALLY_ENCLOSED_BY = "`
-- `NULL_IF = /NULL/` : SQL NULL값을 변환하는 값
-- `EMPTY_FIELD_AS_NULL = TRUE` : `FIELD_OPTIONALLY_ENCLOSED_BY`와 함께 사용
-    - `EMPTY_FIELD_AS_NULL = FALSE`, `FIELD_OPTIONALLY_ENCLOSED_BY = NONE`이면 빈 string을 따옴표없이 표시
-    - `EMPTY_FIELD_AS_NULL = TRUE`이면, `FIELD_OPTIONALLY_ENCLOSED_BY`을 `"` 또는 `'`으로 표시해야 함
+- `NULL_IF = /NULL/` : define NULL value
+- `EMPTY_FIELD_AS_NULL = TRUE` : use with `FIELD_OPTIONALLY_ENCLOSED_BY`
+    - If `EMPTY_FIELD_AS_NULL = FALSE` and `FIELD_OPTIONALLY_ENCLOSED_BY = NONE`, set empty string without double quotes
+    - If `EMPTY_FIELD_AS_NULL = TRUE`, `FIELD_OPTIONALLY_ENCLOSED_BY` should be set `"` or `'`
 
 ### [Clickhouse] CSV format settings
 - `format_csv_delimiter = ,`
@@ -46,17 +52,29 @@ Let's migrate data from Snowflake to Clickhouse.
 - `timestamp_tz` : timestamp without time zone
 - `timestamp_ltz` : timestamp with local time zone
 
+### [Clickhouse] Data Type - Datetime
+```
+DateTime64(precision, [timezone])
+```
+- Tick size (precision): 10-precision seconds( 0 ~ 9 ). 
+    - Typically are used - 3 (milliseconds), 6 (microseconds), 9 (nanoseconds).
+- Supported : [1900-01-01 00:00:00, 2299-12-31 23:59:59.99999999]. 
+    - If date value over `2299-12-31 23:59:59.99999999`( ex. `9999-12-31` ), Clickhosue change the value as `2299-12-31 23:59:59.{precision}`
+- Data to be inserted must match precision with precision defined in table
+    - ex: If data is "2010-12-31 23:59:12.000", datetime precision should be 3. If precision set to 9, ERROR.
+
+
 ### [Snowflake] Data Type - ARRAY
-ARRAY내의 값은 VARIANT 타입으로, 어떤 타입이든 저장할 수 있음
+VARIANT in ARRAY. VARIANT means any data types
 
 ### [Clickhouse] Data Type - Array(t)
-Array에 들어갈 데이터 타입을 명시해야 함
+Must define which data type(`t`) to be stored in Array
 
 ### [Clickhouse] Set Nullable
-`Nullable`을 설정하지 않으면, null값은 각 data type의 기본값으로 설정됨
-- String : '' (empty string)
-- Datetime : 1970-01-01 09:00:00.000000000
-- Float : 0
+As default( if not set `Nullable`), set default as follows:
+- for data type `String` : '' (empty string)
+- for data type `Datetime` : 1970-01-01 09:00:00.000000000
+- for data type `Float` : 0
 
 ### Snowflake -> Clickhouse Conversion
 
@@ -73,9 +91,11 @@ Array에 들어갈 데이터 타입을 명시해야 함
 | OBJECT | JSON |
 | ARRAY | Array |
 
+
 # Reference
 - [Purpose of ESCAPE_UNENCLOSED_FIELD option in file-format and how to use it](https://community.snowflake.com/s/article/Use-of-ESCAPE-UNENCLOSED-FIELD-option-in-file-format)
 - [Clickhouse Decimal](https://clickhouse.com/docs/en/sql-reference/data-types/decimal)
 - [Clickhouse Array](https://clickhouse.com/docs/en/sql-reference/data-types/array#working-with-data-types)
 - [Clickhouse MergeTree](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree)
 - [Snowflake ARRAY](https://docs.snowflake.com/en/sql-reference/data-types-semistructured#label-data-type-variant)
+- [Clickhouse Datetime](https://clickhouse.com/docs/en/sql-reference/data-types/datetime64)
