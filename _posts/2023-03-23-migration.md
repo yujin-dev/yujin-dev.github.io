@@ -12,6 +12,16 @@ Let's migrate data from Snowflake to Clickhouse.
 3. Insert data from S3 to Clickhouse with S3 table engine. 
 
 # Parameters
+### [Snowflake] Unloading data
+- file format : csv
+    - compression : AUTO, GZIP, BZ2, BROTLI, ZSTD, DEFLATE, RAW_DEFLATE
+    - seems to be compression efficiency of `gzip` is higher. 
+- file format : parquet 
+    - compression : AUTO, LZO, SNAPPY
+    - data loading speed is much higher 
+
+If the file format is csv, a parsing error may occur or empty string and NULL values ​​may be inserted without distinction when if the option is not properly set. However, parquet does not set the parsing value separately, and there is no case where an error occurs in parsing.
+
 ### [Snowflake] `COPY INTO` parameters settings 
 `TYPE = CSV`
 
@@ -91,6 +101,17 @@ As default( if not set `Nullable`), set default as follows:
 | OBJECT | JSON |
 | ARRAY | Array |
 
+### [Snowflake] Stage format type
+
+`snappy`
+
+Snappy compression is a fast and efficient compression algorithm designed to compress and decompress data at high speeds. It was developed by Google and released as an open-source software in 2011.
+
+Snappy is designed to be fast rather than offering the highest compression ratio possible. It achieves high compression and decompression speeds by using a very simple algorithm that operates directly on the input data without requiring any pre-processing or complex data structures.
+
+Snappy works by dividing the input data into small, fixed-size blocks and compressing each block independently. This allows Snappy to take advantage of the local redundancy in the data and achieve high compression ratios without the overhead of more complex algorithms.
+
+Snappy is particularly well-suited for use cases where data needs to be compressed and decompressed quickly, such as in distributed systems and big data processing applications. However, its relatively low compression ratios make it less suitable for use cases where storage space is at a premium.
 
 # Reference
 - [Purpose of ESCAPE_UNENCLOSED_FIELD option in file-format and how to use it](https://community.snowflake.com/s/article/Use-of-ESCAPE-UNENCLOSED-FIELD-option-in-file-format)
@@ -99,3 +120,7 @@ As default( if not set `Nullable`), set default as follows:
 - [Clickhouse MergeTree](https://clickhouse.com/docs/en/engines/table-engines/mergetree-family/mergetree)
 - [Snowflake ARRAY](https://docs.snowflake.com/en/sql-reference/data-types-semistructured#label-data-type-variant)
 - [Clickhouse Datetime](https://clickhouse.com/docs/en/sql-reference/data-types/datetime64)
+- [Clickhouse Format](https://clickhouse.com/docs/en/operations/settings/formats)
+- [Snowflake COPY INTO options](https://docs.snowflake.com/en/sql-reference/sql/copy-into-table)
+- [parquet vs. csv](https://velog.io/@freetix/parquet-csv-parquet-%ED%8C%8C%EC%9D%BC-%EB%B6%88%EB%9F%AC%EC%98%A4%EA%B8%B0-%ED%85%8C%EC%8A%A4%ED%8A%B8)
+- [Dumping a Snowflake Table to Parquet](https://altinity.com/blog/migrating-data-from-snowflake-to-clickhouse-using-s3-and-parquet)
