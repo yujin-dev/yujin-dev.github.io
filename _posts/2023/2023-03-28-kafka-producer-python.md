@@ -2,7 +2,7 @@
 layout: post
 title: Python Kafka Producer
 date: 2023-03-28
-categories: [KAFKA]
+categories: [Kafka]
 ---
 
 `kafka.KafkaProducer`는 kafka 클러스터에 record를 publish하는 Kafka 클라이언트이다.

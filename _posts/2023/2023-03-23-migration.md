@@ -2,7 +2,7 @@
 layout: post
 title: Migration from Snowflake to Clickhouse
 date: 2023-03-23
-categories: [CLICKHOUSE]
+categories: [Database]
 ---
 
 Snowflake에서 Clickhouse로 데이터를 이전하는 과정을 정리하였다.
