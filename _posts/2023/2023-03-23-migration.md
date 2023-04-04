@@ -16,7 +16,7 @@ Snowflake에서 Clickhouse로 데이터를 이전하는 과정을 정리하였�
 
 이전 과정에서 설정한 설정 변수 및 파일 형식 등을 좀 더 살펴보겠다.(이 부분은 나의 유즈 케이스에 맞춰 디버깅하면서 필요한 부분을 설정하고 수정한 내용이라 범용적이지 않을 수도 있을 것 같다.)
 
-## Parameters for unloading data
+# Parameters for unloading data
 S3에 언로딩하는 과정에서 설정한 파라미터는 크게 파일형식( csv, parquet ), 그에 따른 압축 형식 및 기타 옵션 등이 있었다.
 
 Snowflake에서 S3로 데이터를 언로딩할 때 보통 csv 또는 parquet을 많이 적용할 것으로 예상된다. 
@@ -38,9 +38,10 @@ parquet을 사용하게 되면 거의 snappy 압축 방식을 사용한다고 �
 
 하지만 데이터 로딩 속도는  parquet + snappy가 훨씬 빠르다. snappy는 높은 압축률보다는 빠른 압축이 가능하도록 설계되어, 분산 시스템 및 빅데이터 처리에서 적합한 압축 방식이라고 한다. 
 
+## File format : CSV
 CSV인 경우에는 NULL 값을 직접 설정해야 하고 Clickhouse로 데이터를 덤프하는 과정에서 잦은 파싱 오류가 발생하였다.
 
-처음 CSV를 적용했을 때 Snowflake `COPY INTO` 파라미터를 아래와 같이 세팅하였다.
+처음 CSV를 적용했을 때 Snowflake `COPY INTO` 파라미터를 아래와 같이 세팅한다.
 ```
 TYPE = CSV
 ```
@@ -80,6 +81,7 @@ Clickhouse에서는 S3 table engine에서 CSV 포맷 형식을 다음과 같이 
 
 String이면 값이 `"'/NULL/'"로 저장될 것이고, Decimal같은 타입이면 `'/NULL/'`로 저장되어 둘 다 NULL값을 인식한다.
 
+## File format : Parquet
 CSV를 적용하니 데이터를 저장하고 불러오는데 수동으로 설정한 변수가 많아, 그렇게 깔끔하다는 느낌이 들지 않는다.
 Parquet을 사용하면 파싱 오류는 거의 발생하지 않았다. 결국 다음과 같이 세팅하여 사용하였다.
 
@@ -109,38 +111,42 @@ Snowflake는 테이블명이나 칼럼명이 case-insensitive하게 쿼리가 �
 
 `SET input_format_parquet_case_insensitive_column_matching=1`을 설정하여 일시적으로 case-insensitive 상태로 만들어서 해결하였다.
 
-## Table Schema
-
-### [Snowflake] Data Type - Timestamp
+# Table Schema
+## Data Type - Timestamp
+Snowflake Datetime 타입은 다음과 같이 구분된다.
 
 - `timestamp_ntz` : timestamp with timezone
 - `timestamp_tz` : timestamp without time zone
 - `timestamp_ltz` : timestamp with local time zone
 
-### [Clickhouse] Data Type - Datetime
+Clickhouse Datetime 타입은 다음과 같이 정의되는데, 여기서는 Datetime64을 적용하였다.
+
 ```
 DateTime64(precision, [timezone])
 ```
-- Tick size (precision): 10-precision seconds( 0 ~ 9 ). 
-    - Typically are used - 3 (milliseconds), 6 (microseconds), 9 (nanoseconds).
-- Supported : [1900-01-01 00:00:00, 2299-12-31 23:59:59.99999999]. 
-    - If date value over `2299-12-31 23:59:59.99999999`( ex. `9999-12-31` ), Clickhosue change the value as `2299-12-31 23:59:59.{precision}`
-- Data to be inserted must match precision with precision defined in table
-    - ex: If data is "2010-12-31 23:59:12.000", datetime precision should be 3. If precision set to 9, ERROR.
+- Precision 범위 : 10-precision seconds( 0 ~ 9 )
+- 보통은 3(milliseconds), 6(microseconds), 9(nanoseconds)가 적용된다.
+- 지원되는 기간 : [1900-01-01 00:00:00, 2299-12-31 23:59:59.99999999]
+- `9999-12-31`와 같이 `2299-12-31 23:59:59.99999999`를 초과하는 date 데이터가 있다면, Clickhouse 자체적으로 `2299-12-31 23:59:59.{precision}`로 변환한다.
 
-### [Snowflake] Data Type - ARRAY
-VARIANT in ARRAY. VARIANT means any data types
+## Data Type - Array
 
-### [Clickhouse] Data Type - Array(t)
-Must define which data type(`t`) to be stored in Array
+Snowflake에서는 Array내의 데이터 타입이 VARIANT로, 모든 데이터 타입을 의미한다.  
+Clickhouse에서는 `Array(t)`로 정의되며, `t`는 Array 내에 들어갈 데이터 타입을 정의한다.
 
-### [Clickhouse] Set Nullable
-As default( if not set `Nullable`), set default as follows:
-- for data type `String` : '' (empty string)
-- for data type `Datetime` : 1970-01-01 09:00:00.000000000
-- for data type `Float` : 0
+## Clickhouse `Nullable`
+`Nullable`를 설정하지 않으면, 다음과 같이 기본적으로 값이 세팅된다.
 
-### Snowflake -> Clickhouse Conversion
+- String 타입의 경우 :  '' (empty string)
+- Datetime 타입의 경우 : 1970-01-01 09:00:00.000000000
+- Float 타입의 경우 : 0
+
+`NOT NULL` 아닌 경우에는 반드시 `NULLABLE`을 칼럼 정의에 추가하여 NULL 값이 포함되도록 한다.  
+여기서 주의할 점은 JSON과 Array는 `Nullable`을 적용하면 오류가 나므로 제외해야 한다. 
+
+## Snowflake -> Clickhouse data type conversion 
+
+Clickhouse에서 테이블을 생성할 때 Snowflake 테이블 스키마를 다음과 같이 data type에 맞게 변경하였다.
 
 |snowflake|clickhouse|
 |---------|---|
@@ -155,8 +161,14 @@ As default( if not set `Nullable`), set default as follows:
 | OBJECT | JSON |
 | ARRAY | Array |
 
+- 데이터를 이전하여 최대한 손실을 발생하지 않도록 32비트가 아닌 64비트로 적용하였다
+- Snowflake에서는 timezone의 유무, 시스템 timezone을 따르는지에 따라 Datetime 타입이 달라지는데, Clickhouse에서도 이를 명시해야 한다
+- Snowflake Array에서는 모든 타입의 원소를 받지만, Clickhouse에서는 Array 내 동일한 타입의 원소를 받아 타입을 정의한다
 
-# Reference
+**공식적으로 데이터 타입의 호환을 보장하는 부분은 없으므로 반드시 테스트해서 확인해봐야 한다.**
+
+---
+#### Reference
 - [Purpose of ESCAPE_UNENCLOSED_FIELD option in file-format and how to use it](https://community.snowflake.com/s/article/Use-of-ESCAPE-UNENCLOSED-FIELD-option-in-file-format)
 - [Clickhouse Decimal](https://clickhouse.com/docs/en/sql-reference/data-types/decimal)
 - [Clickhouse Array](https://clickhouse.com/docs/en/sql-reference/data-types/array#working-with-data-types)
