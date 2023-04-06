@@ -1,17 +1,16 @@
 ---
 layout: post
-title: Python Kafka Producer
+title: Python Kafka Producer(feat.Go)
 date: 2023-03-28
 categories: [Kafka]
 ---
 
-`kafka.KafkaProducer`는 kafka 클러스터에 record를 publish하는 Kafka 클라이언트이다.
-
-## Source Code
+`kafka.KafkaProducer`는 kafka 클러스터에 record를 publish하는 Kafka 클라이언트이다.  
 보통 Producer는 여러 스레드에서 하나의 인스턴스를 공유하는 것이 여러 인스턴스를 생성해서 사용하는 것보다 빠르다.
 
-Kafka Producer는 record를 저장하는 buffer 공간과 클러스터로 record를 전송하는 backgroud I/O 스레드로 구성된다.
-### buffer usage
+Kafka Producer는 <u>record를 저장하는 buffer</u> 공간과 클러스터로 <u>record를 전송하는 backgroud I/O 스레드</u>로 구성된다.
+
+## Buffer usage
 
 정해진 `batch_size`만큼 producer는 각 파티션의 아직 전송되지 않은 record를 buffer에 유지한다. 사이즈를 크게 하면 한번에 더 많은 데이터를 보낼 수 있으나, 메모리 사용량이 늘어날 수 있다. default는 16KiB(16384)이다.
 
@@ -105,7 +104,114 @@ Kafka Producer는 record를 저장하는 buffer 공간과 클러스터로 record
             self._appends_in_progress.decrement()
 ```
 
-### send message
+### Kafka producer in Go
+Go에서는 kafka producer가 cgo를 기반으로 구현되어 있다.
+
+기본적인 `produce`는 아래는 배치가 아닌 **단일 메시지**를 발행하는 메서드다. 내부적으로 큐에 메시지를 추가하고 바로 리턴하는 방식으로 비동기적으로 호출된다.  
+메시지 배치 발행은 `Producer.produceBatch`를 적용해야 할 것으로 보인다.
+
+```go
+/* kafka.Producer */
+func (p *Producer) Produce(msg *Message, deliveryChan chan Event) error {
+	err := p.verifyClient()
+	if err != nil {
+		return err
+	}
+	return p.produce(msg, 0, deliveryChan)
+}
+
+func (p *Producer) produce(msg *Message, msgFlags int, deliveryChan chan Event) error {
+	if msg == nil || msg.TopicPartition.Topic == nil || len(*msg.TopicPartition.Topic) == 0 {
+		return newErrorFromString(ErrInvalidArg, "")
+	}
+
+	crkt := p.handle.getRkt(*msg.TopicPartition.Topic)
+	var valp []byte
+	var keyp []byte
+	oneByte := []byte{0}
+	var valIsNull C.int
+	var keyIsNull C.int
+	var valLen int
+	var keyLen int
+
+	/* if msg.Value == nil {
+        ...
+    */
+
+	/* if msg.Key == nil {
+        ...
+    */
+
+	var cgoid int
+
+	if deliveryChan != nil || msg.Opaque != nil {
+        // cgoPut은 cgo map에 객체를 추가하고 고유 id를 반환한다.(아래)
+		cgoid = p.handle.cgoPut(cgoDr{deliveryChan: deliveryChan, opaque: msg.Opaque})
+	}
+
+	var timestamp int64
+	if !msg.Timestamp.IsZero() {
+		timestamp = msg.Timestamp.UnixNano() / 1000000
+	}
+
+	var tmphdrs []C.tmphdr_t
+	tmphdrsCnt := len(msg.Headers)
+
+	if tmphdrsCnt > 0 {
+		tmphdrs = make([]C.tmphdr_t, tmphdrsCnt)
+
+		for n, hdr := range msg.Headers {
+            // C.CString : go string을 *C.char로 반환, C heap에 생성되며 메모리 해제 필요
+			tmphdrs[n].key = C.CString(hdr.Key) // copy
+			if hdr.Value != nil {
+				tmphdrs[n].size = C.ssize_t(len(hdr.Value))
+				if tmphdrs[n].size > 0 {
+                    // C.CBytes : []byte를 unsafe.Pointer로 반환, C array는 C heap에 생성되며 메모리 해제 필요
+					tmphdrs[n].val = C.CBytes(hdr.Value)  // copy
+				}
+			} else {
+				// null value
+				tmphdrs[n].size = C.ssize_t(-1)
+			}
+		}
+	} else {
+		tmphdrs = []C.tmphdr_t{{nil, nil, 0}}
+	}
+
+    // unsafe Pointer는 Go에서 임의의 메모리 조작을 허용하는 것으로 C 포인터와 사용과 관련있다.
+	cErr := C.do_produce(p.handle.rk, crkt,
+		C.int32_t(msg.TopicPartition.Partition),
+		C.int(msgFlags)|C.RD_KAFKA_MSG_F_COPY,
+		valIsNull, unsafe.Pointer(&valp[0]), C.size_t(valLen),
+		keyIsNull, unsafe.Pointer(&keyp[0]), C.size_t(keyLen),
+		C.int64_t(timestamp),
+		(*C.tmphdr_t)(unsafe.Pointer(&tmphdrs[0])), C.size_t(tmphdrsCnt),
+		(C.uintptr_t)(cgoid))
+	if cErr != C.RD_KAFKA_RESP_ERR_NO_ERROR {
+		if cgoid != 0 {
+			p.handle.cgoGet(cgoid)
+		}
+		return newError(cErr)
+	}
+	return nil
+}
+
+/* kafka.handle */
+func (h *handle) cgoPut(cg cgoif) (cgoid int) {
+	h.cgoLock.Lock()
+	defer h.cgoLock.Unlock()
+
+	h.cgoidNext++
+	if h.cgoidNext == 0 {
+		h.cgoidNext++
+	}
+	cgoid = (int)(h.cgoidNext)
+	h.cgomap[cgoid] = cg
+	return cgoid
+}
+```
+
+## Send message
 `kafka.KafkaProducer`를 초기화할 때 메시지를 전송하기 위한 `Sender` 인스턴스를 생성하면서 비동기 요청 및 응답에 대응하는 네트워크 I/O를 위한 `KafkaClient`를 생성한다.
 
 ```python
@@ -163,3 +269,7 @@ Kafka Producer는 record를 저장하는 buffer 공간과 클러스터로 record
             self.close(error=error)
             return False
 ```
+
+---
+#### Reference
+- [Go에서 C 또는 C++ 연동](https://alnova2.tistory.com/1369)
