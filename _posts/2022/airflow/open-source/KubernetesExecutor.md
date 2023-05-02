@@ -1,3 +1,12 @@
+---
+layout: post
+title: Explore Airflow Executors(Kubernetes/CeleryKubernetes)
+categories: [Airflow]
+date: 2022-03-17
+---
+
+*[OpenSource : Airflow Executors(Kubernetes/CeleryKubernetes)](https://medium.com/dev-genius/opensource-airflow-executors-kubernetes-celerykubernetes-2a9fd38f53b8)에 자세하게 포스팅하였다.*
+
 ## KubernetesExecutor
 
 KubernetesExecutor는 각각의 task를 pod마다 띄워 실행한다. DAG가 제출되면 KubernetesExecutor는 Kubernetes API로 worker pod를 요청한다.

@@ -1,3 +1,11 @@
+---
+layout: post
+title: Explore Airflow Executors(Local/Sequential/Celery)
+categories: [Airflow]
+date: 2022-03-17
+---
+*[OpenSource : Airflow Executors(Local/Sequential/Celery)](https://medium.com/dev-genius/opensource-airflow-executors-local-sequential-celery-26b6bc74c0d7)에 자세하게 포스팅하였다.*
+
 Airflow에는 여러 [Executor](https://airflow.apache.org/docs/apache-airflow/stable/executor/index.html)가 존재한다.
 
 코드상에는 `airflow/executors`에서 확인할 수 있다.
