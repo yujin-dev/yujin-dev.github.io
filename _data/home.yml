@@ -12,17 +12,16 @@ navbar_entries:
     url: https://github.com/yujin-dev
     
 project_entries:
-  - title: Project 1
-    url: overview-post
-    desc: This is an example project, configured in _data/home.yml
+  - title: Building integrated data plafform with Snowflake
+    url: https://medium.com/@happy__quokka/data-warehouse-%EA%B8%B0%EB%B0%98%EC%9D%98-%EB%8D%B0%EC%9D%B4%ED%84%B0-%ED%94%8C%EB%9E%AB%ED%8F%BC-%EA%B5%AC%EC%84%B1-feat-snowflake-788a284e551a
+    desc: Design and build the integrated data platform, Utilize Snowflake for centralized data warehouse.
 
-  - title: Project 2
-    url: overview-post
-    desc: Projects are shown in card layout
+  - title: DW migration from Snowflake to Clickhouse
+    desc: Migrate data warehouse from cloud-based Snowflake to on-premise Clickhouse.
 
-  - title: Project 3
-    url: overview-post
-    desc: Projects are shown in card layout
+  - title: Apply IaC with Pulumi
+    url: https://medium.com/@happy__quokka/iac%EB%A1%9C-pulumi-%EC%A0%81%EC%9A%A9%ED%95%98%EA%B8%B0-190433b5cab5
+    desc: Apply IaC for better service management including RBAC. Manage members' access for various platforms such as AWS, Snowflake, Github and other internal self-hosted services. 
 
 footer_entries:
   - title: feed
