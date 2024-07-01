@@ -127,25 +127,25 @@ MySQL Debezium source connector는 논리적 복제를 활용하는 binlog를 �
 ```
 
 필드는 다음과 같다.
-- "before": 변경되기 전의 레코드 데이터
-- "after": 변경된 후의 레코드 데이터
-- "source": 이벤트가 발생한 소스 데이터베이스에 대한 메타데이터
-        - "version": Debezium 커넥터 버전
-        - "connector": 사용된 커넥터 타입
-        - "name": 커넥터 이름
-        - "ts_ms": 이벤트 발생 시간(밀리초 단위)
-        - "db": 데이터베이스 이름
-        - "table": 테이블 이름
-        - "server_id": MySQL 서버 ID
-        - "file": 바이너리 로그 파일 이름
-        - "pos": 바이너리 로그 파일에서의 위치
-- "op": 이벤트 타입 (c: create, u: update, d: delete)
-- "ts_ms": 이벤트의 타임스탬프(밀리초 단위)
-- "transaction": 트랜잭션 정보(존재하는 경우)
+- `before`: 변경되기 전의 레코드 데이터
+- `after`: 변경된 후의 레코드 데이터
+- `source`: 이벤트가 발생한 소스 데이터베이스에 대한 메타데이터
+    - `version`: Debezium 커넥터 버전
+    - `connector`: 사용된 커넥터 타입
+    - `name`: 커넥터 이름
+    - `ts_ms`: 이벤트 발생 시간(밀리초 단위)
+    - `db`: 데이터베이스 이름
+    - `table`: 테이블 이름
+    - `server_id`: MySQL 서버 ID
+    - `file`: 바이너리 로그 파일 이름
+    - `pos`: 바이너리 로그 파일에서의 위치
+- `op`: 이벤트 타입 (c: create, u: update, d: delete)
+- `ts_ms`: 이벤트의 타임스탬프(밀리초 단위)
+- `transaction`: 트랜잭션 정보(존재하는 경우)
 
 binlog 기반으로 이루어지는 변경 사항 캡쳐는 원본 테이블 스키마 변경에는 취약한데, 테이블의 레코드 변경만 반영이 되고 실제 스키마는 자동으로 변환되지 않기 때문이다. 
 
-## 스냅샷
+## Snapshot
 MySQL CDC에서는 Consistent Snapshot을 수행한다. Consistent Snapshot은 데이터베이스 트랜잭션 격리 수준 중 하나인 Repeatable Read나 Serializable 격리 수준에서 사용되는 개념이다. REPEATABLE READ 격리 수준은 트랜잭션 내에서 일관된 읽기를 보장한다. 트랜잭션이 시작될 때의 데이터 상태를 기준으로 스냅샷을 생성하고, 트랜잭션이 종료될 때까지 동일한 데이터를 읽도록 한다. 반면 READ COMMITTED의 경우, 트랜잭션 내에서 최신 스냅샷을 읽어온다. 
 
 ## Initial snapshot
@@ -243,7 +243,7 @@ public abstract class AbstractIncrementalSnapshotChangeEventSource<P extends Par
 public abstract class BinlogReadOnlyIncrementalSnapshotChangeEventSource<P extends BinlogPartition, O extends BinlogOffsetContext>
         extends AbstractIncrementalSnapshotChangeEventSource<P, TableId>
       
-    @OverrideS
+    @Override
     public void processMessage(P partition, DataCollectionId dataCollectionId, Object key, OffsetContext offsetContext)
             throws InterruptedException {
         if (getContext() == null) {
@@ -273,7 +273,7 @@ public abstract class BinlogReadOnlyIncrementalSnapshotChangeEventSource<P exten
 메모리 버퍼에 저장된 데이터의 PK와 유입되는 이벤트의 PK를 비교하여, 일치하는 것이 없으면 카프카 토픽에 전송된다. 일치하는 레코드가 있으면 버퍼의 READ 이벤트를 버리고 새로 유입된 데이터를 카프카 토픽에 넣는다. 윈도우가 끝난 후에는 관련된 트랜잭션이 없는 READ 이벤트만 남으므로 남은 이벤트를 카프카 토픽에 전송한다.
 
 
-#### Trigger incremental snapshots 
+#### Trigger incremental snapshots
 현재 증분 스냅샷을 시작하는 유일한 방법은 소스 데이터베이스의 signaling 테이블에 임시 스냅샷 신호를 보내는 것이다. `INSERT` 이벤트가 발생하면 Debezium은 signaling 테이블의 신호를 감지하여 스냅샷 작업을 실행한다.
 
 signaling 데이터 수집은
@@ -301,7 +301,7 @@ values ('<id>',
 ```
 
 #### Read-only incremental snapshots 
-MySQL 커넥터를 사용하면 데이터베이스에 대한 Read-only 연결로 증분 스냅샷을 실행할 수 있다. Read-only 액세스로 증분 스냅샷을 실행하기 위해 커넥터는 실행된 Global Transaction ID(GTID)를 low, high 워터마크로 사용한다. binlog 이벤트나 서버의 heartbeats의 GTID와 low, high 워터마크를 비교하여 chunk의 윈도우를 업데이트한다.
+MySQL 커넥터를 사용하면 데이터베이스에 대한 Read-only 연결로 증분 스냅샷을 실행할 수 있다. Read-only 액세스로 증분 스냅샷을 실행하기 위해 커넥터는 실행된 **Global Transaction ID(GTID)를 low, high 워터마크**로 사용한다. binlog 이벤트나 서버의 heartbeats의 GTID와 low, high 워터마크를 비교하여 chunk의 윈도우를 업데이트한다.
 
 ```java
 public abstract class BinlogReadOnlyIncrementalSnapshotChangeEventSource<P extends BinlogPartition, O extends BinlogOffsetContext>
