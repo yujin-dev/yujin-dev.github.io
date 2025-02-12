@@ -2,14 +2,14 @@ navbar_entries:
   - title: About
     url: about
 
+  - title: Record
+    url: blog
+
   - title: Medium
     url: https://medium.com/@happy__quokka
 
   - title: Github
     url: https://github.com/yujin-dev
-    
-  - title: TIL(korean)
-    url: blog
     
 project_entries:
   - title: Building integrated data plafform with Snowflake
