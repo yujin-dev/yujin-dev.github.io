@@ -1,4 +1,11 @@
-# consumer group
+---
+title: kafka consumer group
+categories: [Kafka]
+layout: 
+date: 
+---
+
+# Consumer Group
 
 - 컨슈머는 컨슈머 그룹의 전담 브로커인 그룹 코디네이터를 요청을 보내 그룹에 합류하고, 파티션을 할당받는다. 같은 그룹의 모든 컨슈머는 같은 코디네이터에 연결하는데, 코디네이터는 컨슈머 목록을 관리하면서 그룹의 새 리더를 선출하기도 한다.
 - 리더는 파티션 배치 계획을 만들어 코디네이터에 전달하는데, 파티션 배치 정책에는 라운드 로빈 / range 기반 / sticky 파티셔닝 등이 있다.
@@ -7,7 +14,7 @@
 
 ### **Consumer Group Coordinator**
 
-![image.png](kafka-consumer-group/image.png)
+![image.png](image.png)
 
 - **Coordinator의 역할**
     - 특정 Consumer Group의 멤버십 관리와 **Rebalancing** 작업
@@ -51,20 +58,45 @@
 
 그룹 합류 / 탈퇴 / 노드 장애>>
 
-![image.png](kafka-consumer-group/image%201.png)
+![image.png](image%201.png)
 
-![image.png](kafka-consumer-group/image%202.png)
+![image.png](image%202.png)
 
-![image.png](kafka-consumer-group/image%203.png)
+![image.png](image%203.png)
 
 JoinGroup 요청 및 응답 >>
 
-![image.png](kafka-consumer-group/image%204.png)
+![image.png](image%204.png)
 
-![image.png](kafka-consumer-group/image%205.png)
+![image.png](image%205.png)
 
 SyncGroup 요청 및 응답 >>
 
-![image.png](kafka-consumer-group/image%206.png)
+![image.png](image%206.png)
 
-![image.png](kafka-consumer-group/image%207.png)
+![image.png](image%207.png)
+
+1. 먼저 group coordinator가 어디에 있는지 찾는다
+![alt text](image-0.png)
+
+2. group coordinator는 컨슈머에 파티션을 어떻게 할당해야하는지 정할 수 없기에 그룹 리더에게 컨슈머 멤버 아이디를 보낸다
+![alt text](image-1.png)
+
+3. 그룹리더는 파티션 계획을 응답으로 보내고 group coordinator는 각 컨슈머에게 할당받을 파티션 정보는 보낸다
+![alt text](image-2.png)
+
+조인 또는 탈퇴에 따른 리파티셔닝
+![alt text](image-3.png)
+
+1. 기존의 컨슈머는 우선 파티션 할당은 취소해야 한다
+2. 이후 join - sync 를 거쳐 새로운 파티션을 할당받는다
+
+![alt text](image-4.png)
+
+하지만 새로 할당받을 때까지 시간이 걸리고, 전체 파티션을 새로 분배하지 않아도 되는 문제가 있다
+
+- 해결방안? 
+
+해결 방안 중 하나로 CooperativeStickyAssignor를 활용해서 전체 파티션 할당을 취소하지 않고 일부만 취소하여 join - sync 과정을 거친다. 할당되지 않은, 취소된 파티션만 새로 컨슈머를 할당받으면 전체 파티션을 취소할 필요가 없다.
+
+![alt text](image-5.png)

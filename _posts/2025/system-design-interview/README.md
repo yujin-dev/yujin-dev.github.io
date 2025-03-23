@@ -1,6 +1,13 @@
+---
+title: 시스템 디자인 정리
+categories: [system-design]
+layout: 
+date: 
+---
+
 # 시스템 디자인
 
-![image.png](system-design-interview/image.png)
+![image.png](image.png)
 
 - 유저는 DNS를 통해 도메인(api.mystie.com)의 ip를 찾아내 접속한다. ip 주소로 HTTP 요청이 전달되고 HTML 페이지나 JSON 응답을 받는다.
 
@@ -10,13 +17,13 @@ GET /users/12 – Retrieve user object for id = 12
 
 - web server 는 DB에서 데이터를 가져오는데 보통 RDBMS를 쓴다. 하지만 latency가 낮거나 비정형 데이를 다루거나 대규모 데이터를 저장해야하는 경우 다른 데이터베이스를 사용한다.
 
-![image.png](system-design-interview/image%201.png)
+![image.png](image%201.png)
 
 - 로드밸런서를 통해 웹 서버들간에 트래픽을 분산시키다. 유저는 로드밸런서의 ip를 찾아내 접속하고 웹 서버는 직접적인 유저의 접속을 받지 않는다.
     - failover 가능 - 서버1이 다운되면 서버2로 자동접속
     - 트래픽 변화에 유연하게 대처
 
-![image.png](system-design-interview/image%202.png)
+![image.png](image%202.png)
 
 - 데이터베이스 다중화 - 쓰기 작업은 마스터에서만 받고 다른 레플리카 서버에 데이터를 복제한다. 읽기 작업은 레플리카 서버에서도 받을 수 있다
     - 읽기 성능을 병렬로 지원하여 개선
@@ -25,23 +32,23 @@ GET /users/12 – Retrieve user object for id = 12
     - 스케일 업 - 서버의 스펙을 늘린다
     - 스케일 아웃 - 서버의 갯수를 늘리는데 샤딩이 필요하다. 샤딩 키를 잘 설정해 전체 데이터를 샤드로 나누어 분산 저장한다. 여기서 데이터 규모가 이븐하지 못해(샤드 소진이 발생하는 경우) 재샤딩을 하거나 / 핫스팟 문제( 특정 서버에 작업이 몰림 )가 발생하거나 / 조인이나 비정규화( 여러 샤드에서 질의해야 )에 대해 고려해야 한다
 
-![image.png](system-design-interview/image%203.png)
+![image.png](image%203.png)
 
 - Cache - 캐시를 두면 데이터베이스만 두는 것보다 요청을 훨씬 빠르게 처리 가능하다. 데이터베이스 부하도 줄여준다.
     - 고려 사항 - 데이터 갱신이 자주 발생하지 않는 것이 좋음 /  캐시 만료 및 eviction 관리 / 데이터 일관성 관리( 데이터베이스에 저장된 최신 데이터를 가져올 수 있어야 함 )  /  SPOF를 피하기 위해 캐시 서버 다중화
 - CDN(Content Delivery Network ) - HTML 페이지와 같은 정적 콘텐츠를 캐시하여 유저에게 빠르게 보낸다. 유저와 지리적으로 가까운 CDN 서버에서 페이지를 받는게 훨씬 빠르다. CDN에서 캐시 미스가 나면 웹서버에서 가져와 저장한다.
 
-![image.png](system-design-interview/image%204.png)
+![image.png](image%204.png)
 
 - 웹 서버 수평 확장( stateless ) - 웹 서버에 상태(세션) 정보를 저장하지 않고 데이터베이스와 같은 공유 스토리지에 저장하면 어떤 유저의 요청이든 어떤 웹서버로든 전달되도 상관없다. sticky session( 특정 유저의 세션은 항상 같은 서버로만 접속해야 함 )을 신경쓰지 않아도 되어 로드밸런서의 부담도 줄어든다. 트래픽에 따라 오토스케일링 가능하다.
 
-![image.png](system-design-interview/image%205.png)
+![image.png](image%205.png)
 
 - 데이터센터 다중화 - 가장 가까운 데이터센터로 연결해야하기 때문에 지리적 라우팅이 필요하다.
     - DC 간 페일오버 가능
     - 고려 사항 - 트래픽 우회( GeoDNS는 가장 가까운 DC로 트래픽을 보낼 수 있어야) / 데이터 동기화( DC 간 데이터베이스 동기화 )
 
-![image.png](system-design-interview/image%206.png)
+![image.png](image%206.png)
 
 - 메시지 큐 - 데이터 내구성을 보장하며 비동기 통신을 지원하다. 메시지의 버퍼 역할을 해주고 비동기적으로 전송하다.
     - 서비스나 서버 간의 결합이 느슨해서 독립적인 확장 및 운영이 가능하다. 예를 들어 사진을 받아서 처리(보정)해야 한다고 하면 메시지를 비동기적으로 받아 작업 프로세스를 확장하며 처리량을 늘릴 수 있다
@@ -53,13 +60,13 @@ GET /users/12 – Retrieve user object for id = 12
 
 # Rate Limiting
 
-![image.png](system-design-interview/image%207.png)
+![image.png](image%207.png)
 
 - rate limit 초과 트래픽 처리 - rate limit 에 걸린 요청은 429 응답을 반환한다
 
 # Consistent Hashing
 
-![image.png](system-design-interview/image%208.png)
+![image.png](image%208.png)
 
 - Consistent Hashing  - 해시 테이블 크기가 조정되면 평균 k/n개의 키만 새로 재배치한다.(k = 샤딩 키 갯수, n=샤드, 슬롯의 갯수 ). 해시 링 위에 해시 서버가 있고 해시 키에 따라 가장 가까운 서버에 배치된다.
     - 서버 추가나 제거시 키 위치에 따라 새로 위치한 가장 가까운 서버로 재배치하면 된다
@@ -114,14 +121,14 @@ print(ch.get_node("my_key"))  # 특정 키가 할당될 노드
 
 - 전통적인 재샤딩은 거의 대부분 키가 새로 배치되는 문제가 있다
 
-![image.png](system-design-interview/image%209.png)
+![image.png](image%209.png)
 
 - 가상 노드 - 기본 안정 해시는 서버 추가나 삭제에 따라 샤드 크기를 균등하게 유지하지 못하는 문제 가 있고, 키의 uniform 분포를 달성하기 어렵다는 문제가 있다. 이 때 하나의 해시 서버가 여러 개의 가상 노드를 가지면 각 서버는 여러 파티션을 관리할 수 있다.
     - 가상 노드 갯수가 늘어나면 샤드 크기 간에 표준 편차가 작아져서 키에 따라 데이터가 고르게 분포된다.
 
 # Key-Value Store( ex. Cassandra, BigTable, DynamoDB )
 
-![image.png](system-design-interview/image%2010.png)
+![image.png](image%2010.png)
 
 - 유저는 API( put / get )을 통해 통신한다
 - coordinator 노드를 통해 다른 노드들과 통신한다(프록시)
@@ -146,26 +153,26 @@ CAP 이론
 - 데이터 버저닝 - 데이터 변경 때마다 새로운 데이터 버전을 갱신, 각 버전의 데이터는 immutable
 - 벡터 시계 - [서버, 버전]의 순서쌍을 데이터에 추가. 선행 버전, 후행 버전을 파악하고 버전 충돌이 일어난 경우 클라이언트에서 충돌을 해결하여 반영한다.
 
-![image.png](system-design-interview/image%2011.png)
+![image.png](image%2011.png)
 
 장애 처리
 
-![image.png](system-design-interview/image%2012.png)
+![image.png](image%2012.png)
 
 - 장애 감지 - 2대 이상의 서버가 하나의 서버에 대한 장애를 보고해야 장애로 감지함. 모든 노드간 멀티 캐스트를 구성하는 것은 비효율적이고, 분산형 장애 감지( 가십 프로토콜 )을 활용하는 것이 효율적임.
     - 가십 프로토콜 - 각 노드는 멤버십 목록을 가지고 각 멤버(노드) ID와 heartbeat 카운터를 주기적으로 체크한다. 일정 시간동안 갱신되지 않은 노드는 offline 상태(장애)로 가준한다.
 - 일시적 장애 처리 - 장애가 인식되면 strict quorum에 따라 읽기/쓰기를 중단해야 한다. sloppy quorum을 따른다면 가용성을 높이기 위해 해시 링에서 장애가 아닌 서버 중에 W / R 서버를 선택한다. 장애 상태의 서버로 가는 요청은 선택된 다른 서버에서 대신 처리한다. 서버가 복구되면 따라잡지 못한 변경 사항을 일괄 반영하여 데이터 일관성을 보존한다( hinted handoff )
 - 영구 장애 처리 - 영구적인 장애의 경우 anti-entropy 프로토콜을 통해 데이터 사본을 비교하여 최신 버전으로 갱신한다. 여기서 머클 트리라는 해시 트리를 활용한다. 두 머클 트리의 비교는 각 트리 노드의 해시값을 비교하여 다른 데이터를 갖는 버킷의 데이터를 동기화
 
-![image.png](system-design-interview/image%2013.png)
+![image.png](image%2013.png)
 
 쓰기 및 읽기
 
-![image.png](system-design-interview/image%2014.png)
+![image.png](image%2014.png)
 
 - 커밋 로그에 기록 - 데이터 캐시 저장 - 캐시가 차거나 어떤 임계치에 다다르면 디스크 SSTable에 데이터 플러시
 
-![image.png](system-design-interview/image%2015.png)
+![image.png](image%2015.png)
 
 - 캐시 히트면 메모리에서 가져오고, 캐시 미스면 블룸 필터를 거쳐 디스크 SSTable에서 데이터를 가져온다.
 
@@ -173,16 +180,16 @@ CAP 이론
 
 트위터 스노우플레이크 ID
 
-![image.png](system-design-interview/image%2016.png)
+![image.png](image%2016.png)
 
 - datacenter ID / machine ID는 충돌이 발생할 수 있으니 신중히
 - sequence numbr 는 ID 생성 때마다 1씩 증가
 
 # URL 단축기
 
-![image.png](system-design-interview/image%2017.png)
+![image.png](image%2017.png)
 
-![image.png](system-design-interview/image%2018.png)
+![image.png](image%2018.png)
 
 - 해시 함수를 적용해 단축 URL을 생성하는데 해시 함수는 16진수인 MD5, SHA-1 등을 적용하여 해시값의 앞부분만 활용하거나 62진법인 base-62를 통해 변환한다.
 
@@ -195,7 +202,7 @@ CAP 이론
 - **월별 저장 용량**: 한 달 동안 10억 페이지를 다운로드하면 약 500TB의 데이터가 필요합니다.
 - **5년간 저장 용량**: 데이터를 5년 동안 저장한다고 가정하면, 월별 500TB × 12개월 × 5년으로 총 30PB의 저장소가 필요합니다.
 
-![image.png](system-design-interview/image%2019.png)
+![image.png](image%2019.png)
 
 - URL frontier - 다운로드할 URL
 - Content Seen? - 중복 컨텐츠인지 확인하여 이미 저장된 경우면 버린다.
@@ -205,7 +212,7 @@ CAP 이론
 
 데이터 수집 > URL frontier → HTML 다운로더 시 태스크( 미수집 URL ) 할당
 
-![image.png](system-design-interview/image%2020.png)
+![image.png](image%2020.png)
 
 - Queue router - 매핑 테이블은 호스트명과 큐에 매핑 정보를 갖고 있고, 같은 호스트의 URL은 동일한 큐로 전송된다.
 - Queue selector - 각 웹사이트 호스트명마다 다운로드를 수행할 worker thread를 따로 둔다. 즉 별도의 큐를 할당하여 태스크를 가져간다. 전달된 URL은 각각 순차적으로 처리되고 작업 간에는 일정 시간 텀을 둘 수 있다.
@@ -231,7 +238,7 @@ HTML 다운로더 최적화 >
 - 메시지를 큐에 추가된 순서대로 **컨슈머에게 전달**할 수 있습니다.
 - 데이터 전달 방식은 사용자가 **최소 1회(at-least once)**, **최대 1회(at-most once)**, **정확히 1회(exactly once)** 중에서 구성할 수 있습니다.
 
-![image.png](system-design-interview/image%2021.png)
+![image.png](image%2021.png)
 
 - 데이터는 파티션을 통해 여러 브로커 서버에 분산 저장된다. 토픽의 용량이 늘어나면 파티션 갯수를 늘려 확장할 수 있다. 하나의 파티션 내에서는 메시지 순서가 유지되고, 오프셋을 통해 파티션 내 메시지 위치를 추적한다.
 - 프로듀서가 메시지를 전송할 때 한 토픽의 한 파티션으로 보내진다.
@@ -262,13 +269,13 @@ HTML 다운로더 최적화 >
     - 새로운 메시지가 들어오면 파티션 파일에 추가하며 오프셋을 증가시킨다.
     - 파일의 크기는 계속 커질테니 세그먼트 단위로 나누어 기록한다. 새 메시지는 active 세그먼트에만 구차가하고 이전의 파일은 비활성 상태로 바꿔 읽기 요청만 처리한다. 보관기간이 지난 파일은 삭제하여 정리한다.
 
-![image.png](system-design-interview/image%2022.png)
+![image.png](image%2022.png)
 
 1. 메시지 복사( 프로듀서 → 컨슈머로 전달되는 과정 )에 드는 비용 최소화
 
 메시지 자료 구조
 
-![image.png](system-design-interview/image%2023.png)
+![image.png](image%2023.png)
 
 - key - 파티션을 정한다( 키가 없으면 랜덤으로 결정 ). 파티션은 hash(key) % (파티션갯수) 로 정해진다
 - value - 페이로드
@@ -282,18 +289,18 @@ HTML 다운로더 최적화 >
 
 - Pull 모델 - 컨슈머가 메시지를 소비하는 속도를 정해서 메시지를 가져간다.
 
-![image.png](system-design-interview/image%2024.png)
+![image.png](image%2024.png)
 
 - 프로듀서 -  보로커에 라우팅 계층을 추가하여 어떤 파티션으로 메시지를 전달하지 정한다.
     - 라우팅 계층은 메타데이터 저장소에서 replica distribution plan을 캐시에 보관한다. 네트워크 비용을 줄이기 위해 프로듀서에 포함시키다.
     - 버퍼에 보관했다가 배치로 메시지를 전송한다
     - 리더 파티션에만 데이터를 전송한다
 
-![image.png](system-design-interview/image%2025.png)
+![image.png](image%2025.png)
 
 - 컨슈머 - 특정 파티션의 오프셋부터 메시지를 읽는다. 리더 파티션으로부터 데이터를 가져온다.
 
-[consumer group](system-design-interview/consumer%20group%201721d577edeb8055a3d6ca62ace10175.md)
+[consumer group](consumer%20group%201721d577edeb8055a3d6ca62ace10175.md)
 
 데이터 동기화
 
@@ -333,15 +340,15 @@ HTML 다운로더 최적화 >
 - **월간 스토리지 요구량**:
     - 100GB × 30일 ≈ 3TB.
 
-![image.png](system-design-interview/image%2026.png)
+![image.png](image%2026.png)
 
 - Recalculation only 데이터 집계 - 버그 발생시 원본 데이털르 다시 읽어 데이터를 재계산해야 한다. 로우 데이터 저장소에서 데이터를 가져와 전용 재계산 프로세스에서 처리하고 두번째 메시지 큐로 전송한다. 실시간 데이터 처리와 분리한다.
 
 데이터 모델
 
-![image.png](system-design-interview/image%2027.png)
+![image.png](image%2027.png)
 
-![image.png](system-design-interview/image%2028.png)
+![image.png](image%2028.png)
 
 - 원본 데이터와 집계 결과 데이터를 따로 저장한다 - 원본 데이터를 디버깅 및 백업 데이터로 활용한다. 직접 쿼리해서 집계하는 것은 비효율적이므로 따로 집계 결과를 저장한다
 - 읽기 연산 빈도는 낮으나 쓰기 작업이 많을 것으로 추정되어 쓰기 및 시간 범위 쿼리에 최적화된 카산드라나 InfluxDB를 활용하는 것이 좋겠다
@@ -350,7 +357,7 @@ HTML 다운로더 최적화 >
 
 - 메시지 큐를 도입하여 서비스 간 결합을 끊고 데이터를 비동기적으로 처리한다.
 
-![image.png](system-design-interview/image%2029.png)
+![image.png](image%2029.png)
 
 - 여기서 집계 서비스에서 데이터를 데이터베이스에 바로 저장하진 않고 메시지 큐를 활용한다(  exactly once ) 컨슈머에서 커밋을 수동으로 관리하여 at most once로 메시지를 처리하도록 하고, 중복 처리되지 않도록 관리한다. atomic commit을 통해 로우 데이터와 집계 데이터 저장하는 부분이 한번에 커밋되도록 설계하여 부분 실패를 방지한다
 
@@ -358,7 +365,7 @@ HTML 다운로더 최적화 >
 
 - 스트림 처리 - 데이터를 오는 대로 처리하고 거의 실시간으로 집계 결과를 생성한다
 
-![image.png](system-design-interview/image%2030.png)
+![image.png](image%2030.png)
 
 - 람다 - 스트림 및 배치 처리를 두 가지 경로로 동시에 처리한다
 - 카파 - 스트리 및 배치 처리를 한 가지 경로로 결합하여 처리한다
@@ -370,7 +377,7 @@ HTML 다운로더 최적화 >
 
 네트워크 지연이나 비동기적 처리 환경으로 인해 두 시간 간에는 격차가 생길 수 있다. 
 
-![image.png](system-design-interview/image%2031.png)
+![image.png](image%2031.png)
 
 - 늦게 도착한 이벤트는 워터마크를 활용하여 처리한다. 워터마트는 집계 윈도우의 확장을 의미한다. 가령 15초 워터마크르르 윈도우마다 붙이면 늦게 도착한 이벤트도 처리 가능하다
 
@@ -378,22 +385,22 @@ HTML 다운로더 최적화 >
 
 - at least once로 데이터를 처리해야 한다.
 
-![image.png](system-design-interview/image%2032.png)
+![image.png](image%2032.png)
 
 - atomic commit으로 다운스트림 카프카까지 정상적인 처리가 완료되면 업스트림 카프카로 ack를 전송한다. 다운스트림 카프카에 전송 전에 장애가 발생할 수 있으니 오프셋 정보를 외부 스토리지에 저장한다.
 - 파티션 - 같은 광고 id 이벤트는 같은 파티션에 저장하기 위해 ad_id를 파티션 키로 설정한다.
 
-![image.png](system-design-interview/image%2033.png)
+![image.png](image%2033.png)
 
 - 각 ad_id 마다 별도의 처리 스레드로 병렬로 처리하거나 노드를 여러 대 두어 멀티 프로세싱으로 처리한다
 
-[uber realtime exactly once](system-design-interview/uber%20realtime%20exactly%20once%201721d577edeb808197d9c724231d69c5.md)
+[uber realtime exactly once](uber%20realtime%20exactly%20once%201721d577edeb808197d9c724231d69c5.md)
 
 # 호텔 예약 시스템
 
-![image.png](system-design-interview/image%2034.png)
+![image.png](image%2034.png)
 
-![image.png](system-design-interview/image%2035.png)
+![image.png](image%2035.png)
 
 - Public API Gateway - rate limiting, 인증 등의 기능을 지원하는 fully managed service다.
 - DB 확장 - 예약 이력은 cold storage로 옮기거나 샤딩을 적용한다. 샤딩을 적용하면 한 서버에서 감당해야 할 DB 부하를 분산시킬 수 있다. 예를 들어 QPS = 30000 이면 각 샤드( 샤드 16개라고 하면 ) 노드는 30000/16 = 1875 의 QPS만 처리하면 된다
@@ -401,11 +408,11 @@ HTML 다운로더 최적화 >
 - 동시성 제어
     - 멱등키를 통해 유일성 조건을 추가하여 이중 예약을 해결한다
     
-    ![image.png](system-design-interview/image%2036.png)
+    ![image.png](image%2036.png)
     
     - 비관적 락 - 사용자가 레코드를 업데이트하려고 하면 락을 걸어 동시 업데이트 방지한다( `SELECT ... FOR UPDATE` ) 다른 트랜잭션은 업데이트 하려는 트랜잭션이 있으면 먼저 종료되길 기다려야한다. 여러 레코드에 락을 걸면 데드락이 발생할 수 있고 확장성에 제한이 생겨 DB 성능이 악화될수 있다
     
-    ![image.png](system-design-interview/image%2037.png)
+    ![image.png](image%2037.png)
     
     - 낙관적 락 - 여러 사용자가 업데이트하는 것을 허용한다. 버전 번호와 타임스탬프를 통해 락을 구현한다. 다음 버전 번호는 이전 버전 번호에 +1 큰 값이어야 하고, 해당 조건이 안 맞으면( 유효성 검사 실패 ) 트랜잭션은 중단하고 재시도한다. 보통 비관적 락보단 빠른데, 만일 동시성이 너무 높다면 결국 하나의 트랜잭션만 버전 번호를 1 올리는데 성공할 것이고 다른 트랜잭션은 재시도를 계속 하게 될 것이므로 성능이 안 좋아질 수 있다.
     - 데이터베이스 제약 조건 설정( ex. `CONSTRAINT 'check_room_count CHECK(('total_inventory - total_reserved >= 0))` ) - 제약 조건을 위반하면 트랜잭션을 중단한다. 구현이 쉬우나 마찬가지로 경쟁이 심하면( 동시성이 너무 높으면 ) 실패하는 연산이 많이 나올 것이다

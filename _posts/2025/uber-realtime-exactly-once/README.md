@@ -1,10 +1,17 @@
+---
+title: 우버 실시간 스트리밍
+categories: [data-engineering]
+layout: 
+date: 
+---
+
 # uber realtime exactly once
 
 [https://www.uber.com/en-KR/blog/real-time-exactly-once-ad-event-processing/](https://www.uber.com/en-KR/blog/real-time-exactly-once-ad-event-processing/)
 
 [https://flink.apache.org/2018/02/28/an-overview-of-end-to-end-exactly-once-processing-in-apache-flink-with-apache-kafka-too/](https://flink.apache.org/2018/02/28/an-overview-of-end-to-end-exactly-once-processing-in-apache-flink-with-apache-kafka-too/)
 
-![image.png](uber-realtime-exactly-once/image.png)
+![image.png](image.png)
 
 ### **Flink와 Kafka를 활용한 Exactly-Once 보장**
 
@@ -37,15 +44,15 @@
 
 Aggregation Job >
 
-![image.png](uber-realtime-exactly-once/image%201.png)
+![image.png](image%201.png)
 
 Attribution Job >
 
-![image.png](uber-realtime-exactly-once/image%202.png)
+![image.png](image%202.png)
 
 Union / Load Job >
 
-![image.png](uber-realtime-exactly-once/image%203.png)
+![image.png](image%203.png)
 
 ## **End-to-end Exactly Once Applications with Apache Flink**
 
