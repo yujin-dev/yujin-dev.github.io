@@ -27,7 +27,7 @@ $ docker run -p 8080:8080 --rm --name keycloak-test -e KEYCLOAK_ADMIN=admin -e K
         ```
     - <u>IDP Initiated SSO URL Name</u>는 `amazon-aws`으로 설정한다. Target IDP initiated SSO URL은 `/realms/{real-name}/protocol/saml/clients/{URL name}`형식으로 `/realms/aws/protocol/saml/clients/amazon-aws`으로 변환된다. 이와 동일하게 Base URL을 설정해준다.
 
-        ![](../img/2022-06-07-12-53-30.png)
+        ![](img/2022-06-07-12-53-30.png)
 
     - scope에서 <u>Full Scope Allowed는 비활성화</u>한다.
     - AWS에서 설정하기 위해 SAML Metadata IDPSSODescriptor를 다운받는다.
@@ -55,7 +55,7 @@ $ docker run -p 8080:8080 --rm --name keycloak-test -e KEYCLOAK_ADMIN=admin -e K
 
 브라우저에서 개발자 콘솔을 통해 SAML post 로그를 활용한다. 사전적으로 개발자 콘솔에서 SAML 패널이 없으면 따로 확장 프로그램을 추가한다.
 
-![](./../img/2022-06-10-13-07-29.png)
+![](img/2022-06-10-13-07-29.png)
 
 saml 문서를 인코딩된 값인 SAMLResponse를 `samlresponse.log`에 저장하여 아래와 같이 AWS 임시 credential를 부여받는다. 
 ```
@@ -90,7 +90,7 @@ SAML과 마찬가지로 AWS에서 Role을 기반으로 임시 credential를 사�
 2. AWS에서의 keycloak 연동을 위한 identity provider 구성
     - OpenID Connect 기반의 Identity Provider를 생성하는데 Provider URL를 기입시 **provider의 HTTPS가 열려있어야 한다.** 아래와 같은 thumbprint를 인증해서 verify한다. 
     
-        ![](./../img/2022-06-10-13-20-16.png)
+        ![](img/2022-06-10-13-20-16.png)
 
 3. federation을 위한 AWS role 구성
     - web identity를 기반으로 role을 생성한다.

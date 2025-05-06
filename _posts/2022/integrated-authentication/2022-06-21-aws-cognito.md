@@ -14,7 +14,7 @@ Cognito와 AWS S3를 연동하여 사용자 인증하는 과정을 정리하였�
     **Generate client secret은 체크 해제**하여 client secret을 생성하지 않도록 한다.
 
 2. Cognito Identity Pool을 생성한다. 
-    ![](../img/aws-cognito-1.png)
+    ![](img/aws-cognito-1.png)
     - Unauthenticated identities : 체크하지 않아 인증되지 않은 사용자는 접근하지 못하도록 한다.
     - Authenticated identities : Allow Basic Flow으로 설정( 체크 )
     - Authentication providers : Cognito User Pool을 사용할 것이므로 적용할 User Pool ID, App client ID를 설정한다.
